@@ -1,0 +1,134 @@
+
+using System.Text.RegularExpressions;
+
+namespace Spelllang.Lexer
+{
+    public delegate StateFn StateFn(Lexer lexer);
+
+    public class StateFnContainer
+    {
+
+        private static readonly string ALLOWED_IDENTIFIER_START_CHARACTERS = @"^[a-zA-Z_]+$";
+
+        private static readonly string NUMBER_INITIAL = @"^[0-9]+$";
+
+        private static readonly string ALLOWED_IDENTIFIER_CHARACTERS = @"^[a-zA-Z0-9_]+$";
+
+        public static StateFn LexLine(Lexer lexer)
+        {
+            if (lexer.ReachedEnd())
+            {
+                lexer.Emit(Type.EOF);
+                lexer.Next();
+                return LexLine;
+            }
+
+            if (Regex.IsMatch(lexer.Current(), ALLOWED_IDENTIFIER_START_CHARACTERS))
+            {
+                return LexIdentifier;
+            }
+
+            if (Regex.IsMatch(lexer.Current(), NUMBER_INITIAL))
+            {
+                return LexNumber;
+            }
+
+            switch (lexer.Current())
+            {
+                case " ":
+                case "\n":
+                case "\r":
+                    lexer.Next();
+                    lexer.Ignore();
+                    break;
+                case "'":
+                    return LexString;
+                case ";":
+                    return BuildSingleEmitStateFn(Type.SEMICOLON);
+                case ",":
+                    return BuildSingleEmitStateFn(Type.COMMA);
+                case "(":
+                    return BuildSingleEmitStateFn(Type.PARENTHESES_LEFT);
+                case ")":
+                    return BuildSingleEmitStateFn(Type.PARENTHESES_RIGHT);
+                case "=":
+                    return LexEqualOrAssign;
+                default:
+                    lexer.Emit(Type.UNKNOWN);
+                    lexer.Next();
+                    break;
+            }
+            return LexLine;
+        }
+
+        public static StateFn BuildSingleEmitStateFn(Type type)
+        {
+            return (Lexer lexer) =>
+            {
+                lexer.Next();
+                lexer.Emit(type);
+                return LexLine;
+            };
+        }
+
+        public static StateFn LexString(Lexer lexer)
+        {
+            string terminatingCharacter = lexer.Current();
+            lexer.Next();
+            lexer.Ignore();
+            while (lexer.Current() != terminatingCharacter)
+            {
+                lexer.Next();
+            }
+            lexer.Emit(Type.STRING);
+            lexer.Next();
+            lexer.Ignore();
+            return LexLine;
+        }
+
+        public static StateFn LexIdentifier(Lexer lexer)
+        {
+            while (Regex.IsMatch(lexer.Current(), ALLOWED_IDENTIFIER_CHARACTERS))
+            {
+                lexer.Next();
+            }
+            lexer.Emit(Type.IDENTIFIER);
+            return LexLine;
+        }
+
+        public static StateFn LexEqualOrAssign(Lexer lexer)
+        {
+            lexer.Next();
+            if (lexer.Current() == "=")
+            {
+                lexer.Next();
+                lexer.Emit(Type.EQUAL);
+            }
+            else
+            {
+                lexer.Emit(Type.ASSIGN);
+            }
+            return LexLine;
+        }
+
+        public static StateFn LexNumber(Lexer lexer)
+        {
+            while (
+                lexer.Current() != null &&
+                // is number
+                Regex.IsMatch(lexer.Current(), NUMBER_INITIAL)
+            )
+            {
+                lexer.Next();
+
+                // number is format 1_000 or 3.41
+                if ((lexer.Current() == "_" || lexer.Current() == ".") && Regex.IsMatch(lexer.Peek(), NUMBER_INITIAL))
+                {
+                    lexer.Next();
+                }
+            }
+            lexer.Emit(Type.NUMBER);
+            return LexLine;
+        }
+    }
+}

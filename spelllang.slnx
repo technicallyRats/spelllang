@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Spelllang.Tests/Spelllang.Tests.csproj" />
+    <Project Path="src/Spelllang/Spelllang.csproj" />
+  </Folder>
+</Solution>
