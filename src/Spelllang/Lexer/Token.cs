@@ -11,6 +11,12 @@ namespace Spelllang.Lexer
         IDENTIFIER,
         ASSIGN,
         EQUAL,
+        NOT_EQUAL,
+        NOT,
+        GT,
+        GTE,
+        LT,
+        LTE,
         PARENTHESES_LEFT,
         PARENTHESES_RIGHT,
         COMMA,
@@ -31,7 +37,7 @@ namespace Spelllang.Lexer
 
         public static Type GetValueOrDefault(string keyword, Type fallback)
         {
-            return ReservedKeyWords.TryGetValue(keyword,out Type value) ? value : fallback;
+            return ReservedKeyWords.TryGetValue(keyword, out Type value) ? value : fallback;
         }
 
     }

@@ -52,7 +52,13 @@ namespace Spelllang.Lexer
                 case ")":
                     return BuildSingleEmitStateFn(Type.PARENTHESES_RIGHT);
                 case "=":
-                    return LexEqualOrAssign;
+                    return BuildConditionalEmitStateFn("=", Tokens.Type.EQUAL, Tokens.Type.ASSIGN);
+                case "!":
+                    return BuildConditionalEmitStateFn("=", Tokens.Type.NOT_EQUAL, Tokens.Type.NOT);
+                case ">":
+                    return BuildConditionalEmitStateFn("=", Tokens.Type.GTE, Tokens.Type.GT);
+                case "<":
+                    return BuildConditionalEmitStateFn("=", Tokens.Type.LTE, Tokens.Type.LT);
                 default:
                     lexer.Emit(Type.UNKNOWN);
                     lexer.Next();
@@ -67,6 +73,24 @@ namespace Spelllang.Lexer
             {
                 lexer.Next();
                 lexer.Emit(type);
+                return LexLine;
+            };
+        }
+
+        public static StateFn BuildConditionalEmitStateFn(string conditional, Tokens.Type onMatchType, Tokens.Type noMatchType)
+        {
+            return (Lexer lexer) =>
+            {
+                lexer.Next();
+                if (lexer.Current() == conditional)
+                {
+                    lexer.Next();
+                    lexer.Emit(noMatchType);
+                }
+                else
+                {
+                    lexer.Emit(noMatchType);
+                }
                 return LexLine;
             };
         }
@@ -93,21 +117,6 @@ namespace Spelllang.Lexer
                 lexer.Next();
             }
             lexer.Emit(Type.IDENTIFIER);
-            return LexLine;
-        }
-
-        public static StateFn LexEqualOrAssign(Lexer lexer)
-        {
-            lexer.Next();
-            if (lexer.Current() == "=")
-            {
-                lexer.Next();
-                lexer.Emit(Type.EQUAL);
-            }
-            else
-            {
-                lexer.Emit(Type.ASSIGN);
-            }
             return LexLine;
         }
 
