@@ -53,7 +53,7 @@ namespace Spelllang.Lexer
         public Type Type { get; }
         public string Value { get; }
 
-        public string ToString()
+        override public string ToString()
         {
             return Type + "->" + Value;
         }
@@ -72,7 +72,7 @@ namespace Spelllang.Lexer
 
         public Token Current()
         {
-            if (CurrentIndex >= TokenList.Count)
+            if (CurrentIndex > TokenList.Count - 1)
             {
                 return new Token(Type.EOF, "");
             }
@@ -84,6 +84,7 @@ namespace Spelllang.Lexer
         {
             if (CurrentIndex >= TokenList.Count - 1)
             {
+                CurrentIndex++;
                 return new Token(Type.EOF, "");
             }
 

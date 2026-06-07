@@ -52,13 +52,13 @@ namespace Spelllang.Lexer
                 case ")":
                     return BuildSingleEmitStateFn(Type.PARENTHESES_RIGHT);
                 case "=":
-                    return BuildConditionalEmitStateFn("=", Tokens.Type.EQUAL, Tokens.Type.ASSIGN);
+                    return BuildConditionalEmitStateFn("=", Type.EQUAL, Type.ASSIGN);
                 case "!":
-                    return BuildConditionalEmitStateFn("=", Tokens.Type.NOT_EQUAL, Tokens.Type.NOT);
+                    return BuildConditionalEmitStateFn("=", Type.NOT_EQUAL, Type.NOT);
                 case ">":
-                    return BuildConditionalEmitStateFn("=", Tokens.Type.GTE, Tokens.Type.GT);
+                    return BuildConditionalEmitStateFn("=", Type.GTE, Type.GT);
                 case "<":
-                    return BuildConditionalEmitStateFn("=", Tokens.Type.LTE, Tokens.Type.LT);
+                    return BuildConditionalEmitStateFn("=", Type.LTE, Type.LT);
                 default:
                     lexer.Emit(Type.UNKNOWN);
                     lexer.Next();
@@ -77,7 +77,7 @@ namespace Spelllang.Lexer
             };
         }
 
-        public static StateFn BuildConditionalEmitStateFn(string conditional, Tokens.Type onMatchType, Tokens.Type noMatchType)
+        public static StateFn BuildConditionalEmitStateFn(string conditional, Type onMatchType, Type noMatchType)
         {
             return (Lexer lexer) =>
             {
@@ -85,7 +85,7 @@ namespace Spelllang.Lexer
                 if (lexer.Current() == conditional)
                 {
                     lexer.Next();
-                    lexer.Emit(noMatchType);
+                    lexer.Emit(onMatchType);
                 }
                 else
                 {
@@ -114,7 +114,9 @@ namespace Spelllang.Lexer
         {
             while (Regex.IsMatch(lexer.Current(), ALLOWED_IDENTIFIER_CHARACTERS))
             {
-                lexer.Next();
+                if (lexer.Next() == null){
+                    break;
+                }
             }
             lexer.Emit(Type.IDENTIFIER);
             return LexLine;

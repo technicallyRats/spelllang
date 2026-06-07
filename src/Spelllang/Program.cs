@@ -32,7 +32,7 @@ namespace Spelllang
                 enumerator.Next();
             } while (enumerator.Current().Type != Type.EOF);
 
-// reset and parse
+            // reset and parse
             Parser.Parser p = new Parser.Parser(l);
             var root = p.GetRootProgram();
 

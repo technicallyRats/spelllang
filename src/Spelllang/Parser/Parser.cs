@@ -46,13 +46,13 @@ namespace Spelllang.Parser
 
         TokenEnumerator LexerEnumerator;
 
-        readonly Dictionary<Type, ParsePrefixExpressionFn> PrefixParserFn;
-        readonly Dictionary<Type, ParseInfixExpressionFn> InfixParserFn;
-        readonly Dictionary<Type, Precedence> PrecedenceMapping;
+        Dictionary<Type, ParsePrefixExpressionFn> PrefixParserFn;
+        Dictionary<Type, ParseInfixExpressionFn> InfixParserFn;
+        Dictionary<Type, Precedence> PrecedenceMapping;
 
-        public Parser(Lexer.Lexer lexer)
+        private void Setup()
         {
-
+            
             PrefixParserFn = new Dictionary<Type, ParsePrefixExpressionFn>{
                 { Type.NUMBER, ParseNumberExpression },
                 { Type.STRING, ParseStringExpression },
@@ -74,7 +74,19 @@ namespace Spelllang.Parser
             };
 
             ProgramNode = new ProgramNode();
+        }
+
+        public Parser(Lexer.Lexer lexer)
+        {
+            Setup();
             LexerEnumerator = lexer.GetEnumerator();
+            Parse();
+        }
+        
+        public Parser(TokenEnumerator lexerEnumerator)
+        {
+            Setup();
+            LexerEnumerator = lexerEnumerator;
             Parse();
         }
 
@@ -188,6 +200,7 @@ namespace Spelllang.Parser
         private IExpressionNode ParseCallExpression(IExpressionNode left)
         {
             List<IExpressionNode> arguments = ParseExpressionList(Type.PARENTHESES_RIGHT);
+            Console.WriteLine(new CallExpression(left, arguments).ToReadableString());
             return new CallExpression(left, arguments);
         }
 
