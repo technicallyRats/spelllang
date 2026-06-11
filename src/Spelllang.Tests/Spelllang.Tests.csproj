@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <IsPackable>false</IsPackable>
+        <Nullable>enable</Nullable>
+        <AssemblyName>Spelllang.Tests</AssemblyName>
+        <RootNamespace>Spelllang.Tests</RootNamespace>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <IsTestProject>true</IsTestProject>
+        <LangVersion>9</LangVersion>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="NUnit" Version="3.13.3" />
+        <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Spelllang\Spelllang.csproj" />
+    </ItemGroup>
+</Project>
