@@ -189,7 +189,6 @@ namespace Spelllang.Parser
         private IExpressionNode ParseCallExpression(IExpressionNode left)
         {
             var arguments = ParseExpressionList(Type.PARENTHESES_RIGHT);
-            Console.WriteLine(new CallExpression(left, arguments).ToReadableString());
             return new CallExpression(left, arguments);
         }
 
@@ -197,8 +196,9 @@ namespace Spelllang.Parser
         {
             var result = new List<IExpressionNode>();
 
-            if (PeekItemTypeEquals(terminatingType)) return result;
             LexerEnumerator.Next();
+
+            if (CurrentItemTypeEquals(terminatingType)) return result;
 
             while (!CurrentItemTypeEquals(terminatingType))
             {
