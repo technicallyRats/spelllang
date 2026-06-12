@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Spelllang.AST;
 using Spelllang.Lexer;
 using Type = Spelllang.Lexer.Type;
 
 namespace Spelllang.Parser
 {
-
     public delegate IExpressionNode ParsePrefixExpressionFn();
+
     public delegate IExpressionNode ParseInfixExpressionFn(IExpressionNode left);
+
     public delegate IStatementNode ParseStatementFn();
 
     //TODO: does this need to be public?
@@ -27,47 +29,38 @@ namespace Spelllang.Parser
         PRECEDENCE_MAX
     }
 
-    /*
-    EMPTY,
-    EOF,
-    IDENTIFIER,
-    PARENTHESES_LEFT,
-    PARENTHESES_RIGHT,
-    COMMA,
-    NUMBER,
-    STRING,
-    SEMICOLON,
-    */
     public class Parser
     {
-        ProgramNode ProgramNode;
+        private ProgramNode ProgramNode;
 
-        bool Done = false;
+        private bool Done = false;
 
-        TokenEnumerator LexerEnumerator;
+        private TokenEnumerator LexerEnumerator;
 
-        Dictionary<Type, ParsePrefixExpressionFn> PrefixParserFn;
-        Dictionary<Type, ParseInfixExpressionFn> InfixParserFn;
-        Dictionary<Type, Precedence> PrecedenceMapping;
+        private Dictionary<Type, ParsePrefixExpressionFn> PrefixParserFn;
+        private Dictionary<Type, ParseInfixExpressionFn> InfixParserFn;
+        private Dictionary<Type, Precedence> PrecedenceMapping;
 
         private void Setup()
         {
-            
-            PrefixParserFn = new Dictionary<Type, ParsePrefixExpressionFn>{
+            PrefixParserFn = new Dictionary<Type, ParsePrefixExpressionFn>
+            {
                 { Type.NUMBER, ParseNumberExpression },
                 { Type.STRING, ParseStringExpression },
                 { Type.BOOLEAN, ParseBooleanExpression },
                 { Type.IDENTIFIER, ParseIdentifierExpression },
-                { Type.SEMICOLON, ParseSemicolonExpression}
+                { Type.SEMICOLON, ParseSemicolonExpression }
             };
 
-            InfixParserFn = new Dictionary<Type, ParseInfixExpressionFn>{
+            InfixParserFn = new Dictionary<Type, ParseInfixExpressionFn>
+            {
                 { Type.EQUAL, ParseInfixExpression },
                 { Type.ASSIGN, ParseAssignExpression },
                 { Type.PARENTHESES_LEFT, ParseCallExpression }
             };
 
-            PrecedenceMapping = new Dictionary<Type, Precedence> {
+            PrecedenceMapping = new Dictionary<Type, Precedence>
+            {
                 { Type.ASSIGN, Precedence.PRECEDENCE_ASSIGN },
                 { Type.EQUAL, Precedence.PRECEDENCE_EQUAL },
                 { Type.PARENTHESES_LEFT, Precedence.PRECEDENCE_CALL }
@@ -82,7 +75,7 @@ namespace Spelllang.Parser
             LexerEnumerator = lexer.GetEnumerator();
             Parse();
         }
-        
+
         public Parser(TokenEnumerator lexerEnumerator)
         {
             Setup();
@@ -97,15 +90,13 @@ namespace Spelllang.Parser
 
         private void Parse()
         {
-            List<IStatementNode> statements = new List<IStatementNode>();
+            var statements = new List<IStatementNode>();
             while (!Done && LexerEnumerator.Current().Type != Type.EOF)
             {
-                IStatementNode statement = ParseStatement();
-                if (statement != null)
-                {
-                    statements.Add(statement);
-                }
+                var statement = ParseStatement();
+                if (statement != null) statements.Add(statement);
             }
+
             ProgramNode.SetStatements(statements);
         }
 
@@ -118,7 +109,8 @@ namespace Spelllang.Parser
 
         private IExpressionNode ParseExpression(Precedence precedence)
         {
-            ParsePrefixExpressionFn parsePrefixExpressionFn = PrefixParserFn.TryGetValue(LexerEnumerator.Current().Type, out ParsePrefixExpressionFn v )? v : null;
+            var parsePrefixExpressionFn =
+                PrefixParserFn.TryGetValue(LexerEnumerator.Current().Type, out var v) ? v : null;
             if (parsePrefixExpressionFn == null)
             {
                 Console.WriteLine("No prefix parser for type " + LexerEnumerator.Current().Type);
@@ -126,16 +118,17 @@ namespace Spelllang.Parser
                 return null;
             }
 
-            IExpressionNode leftExpression = parsePrefixExpressionFn();
+            var leftExpression = parsePrefixExpressionFn();
 
             while (!PeekItemTypeEquals(Type.EOF) && precedence < PeekItemPrecedence())
             {
-                ParseInfixExpressionFn infixParser = InfixParserFn.TryGetValue(LexerEnumerator.Peek().Type, out ParseInfixExpressionFn value)? value : null;
+                var infixParser = InfixParserFn.TryGetValue(LexerEnumerator.Peek().Type, out var value) ? value : null;
                 if (infixParser == null)
                 {
                     Console.WriteLine("No infix parser for type " + LexerEnumerator.Peek().Type);
                     return leftExpression;
                 }
+
                 LexerEnumerator.Next();
 
                 leftExpression = infixParser(leftExpression);
@@ -146,26 +139,24 @@ namespace Spelllang.Parser
 
         private IExpressionNode ParseInfixExpression(IExpressionNode left)
         {
-            string op = LexerEnumerator.Current().Value;
+            var op = LexerEnumerator.Current().Value;
 
-            Precedence precedence = CurrItemPrecedence();
+            var precedence = CurrItemPrecedence();
             LexerEnumerator.Next();
 
-            IExpressionNode right = ParseExpression(precedence);
+            var right = ParseExpression(precedence);
 
             return new InfixExpression(left, right, op);
         }
 
         private IExpressionNode ParseAssignExpression(IExpressionNode identifier)
         {
-            Precedence precedence = CurrItemPrecedence();
+            var precedence = CurrItemPrecedence();
             LexerEnumerator.Next();
 
-            IExpressionNode value = ParseExpression(precedence);
+            var value = ParseExpression(precedence);
             if (identifier is IdentifierExpression identifierExpression)
-            {
                 return new AssignExpression(identifierExpression.IdentifierName, value);
-            }
             Console.WriteLine("Expected identifier node but got " + identifier);
             return null;
         }
@@ -173,12 +164,10 @@ namespace Spelllang.Parser
         private IExpressionNode ParseNumberExpression()
         {
             // Remove _ for syntactic sugar
-            String rawValue = LexerEnumerator.Current().Value.Replace("_", "");
+            var rawValue = LexerEnumerator.Current().Value.Replace("_", "");
 
-            if (rawValue.Contains("."))
-            {
-                return new FloatExpression(float.Parse(rawValue));
-            }
+            if (rawValue.Contains(".")) return new FloatExpression(float.Parse(rawValue, CultureInfo.InvariantCulture));
+
             return new IntegerExpression(int.Parse(rawValue));
         }
 
@@ -199,29 +188,23 @@ namespace Spelllang.Parser
 
         private IExpressionNode ParseCallExpression(IExpressionNode left)
         {
-            List<IExpressionNode> arguments = ParseExpressionList(Type.PARENTHESES_RIGHT);
+            var arguments = ParseExpressionList(Type.PARENTHESES_RIGHT);
             Console.WriteLine(new CallExpression(left, arguments).ToReadableString());
             return new CallExpression(left, arguments);
         }
 
         private List<IExpressionNode> ParseExpressionList(Type terminatingType)
         {
-            List<IExpressionNode> result = new List<IExpressionNode>();
+            var result = new List<IExpressionNode>();
 
-            if (PeekItemTypeEquals(terminatingType))
-            {
-                return result;
-            }
+            if (PeekItemTypeEquals(terminatingType)) return result;
             LexerEnumerator.Next();
 
             while (!CurrentItemTypeEquals(terminatingType))
             {
                 result.Add(ParseExpression(Precedence.PRECEDENCE_LOWEST));
                 LexerEnumerator.Next();
-                if (CurrentItemTypeEquals(Type.COMMA))
-                {
-                    LexerEnumerator.Next();
-                }
+                if (CurrentItemTypeEquals(Type.COMMA)) LexerEnumerator.Next();
             }
 
             return result;
@@ -234,12 +217,16 @@ namespace Spelllang.Parser
 
         private Precedence CurrItemPrecedence()
         {
-            return PrecedenceMapping.TryGetValue(LexerEnumerator.Current().Type, out Precedence value )? value : Precedence.PRECEDENCE_LOWEST;
+            return PrecedenceMapping.TryGetValue(LexerEnumerator.Current().Type, out var value)
+                ? value
+                : Precedence.PRECEDENCE_LOWEST;
         }
 
         private Precedence PeekItemPrecedence()
         {
-            return PrecedenceMapping.TryGetValue(LexerEnumerator.Peek().Type, out Precedence value )? value : Precedence.PRECEDENCE_LOWEST;
+            return PrecedenceMapping.TryGetValue(LexerEnumerator.Peek().Type, out var value)
+                ? value
+                : Precedence.PRECEDENCE_LOWEST;
         }
 
         private bool PeekItemTypeEquals(Type expected)
