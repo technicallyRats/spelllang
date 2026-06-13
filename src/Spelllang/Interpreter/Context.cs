@@ -24,7 +24,7 @@ namespace Spelllang.Interpreter
 
         public void Register(string variableName, IRuntimeVariableBase value)
         {
-            Values.Add(variableName, value);
+            Values[variableName] = value;
         }
 
         public IRuntimeVariableBase Retrieve(string variableName)

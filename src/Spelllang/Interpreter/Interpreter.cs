@@ -11,7 +11,7 @@ namespace Spelllang.Interpreter
 
         private Parser.Parser _Parser;
 
-        private List<(string name, Builtins.IRuntimeBuiltin value)> Builtins;
+        private List<(string name, IRuntimeBuiltin value)> Builtins;
 
         public Interpreter(Parser.Parser parser)
         {
@@ -20,7 +20,7 @@ namespace Spelllang.Interpreter
             RootNode = _Parser.GetRootProgram();
         }
 
-        public Interpreter(Parser.Parser parser, List<(string name, Builtins.IRuntimeBuiltin value)> builtins)
+        public Interpreter(Parser.Parser parser, List<(string name, IRuntimeBuiltin value)> builtins)
         {
             _Parser = parser;
             Builtins = builtins;
@@ -35,29 +35,24 @@ namespace Spelllang.Interpreter
         private IRuntimeVariableBase RunProgram(ProgramNode program, Context _Context)
         {
             IRuntimeVariableBase result = null;
-            foreach (IStatementNode statement in program.Statements)
+            foreach (var statement in program.Statements)
             {
                 // would just clutter the return stack
                 if (statement is ExpressionStatement expressionStatement)
-                {
-                    if (expressionStatement.Expression is SemicolonExpression) { continue; }
-                }
+                    if (expressionStatement.Expression is SemicolonExpression)
+                        continue;
+
                 result = RunNode(statement, _Context);
             }
+
             return result;
         }
 
         private IRuntimeVariableBase RunNode(IAstNode node, Context _Context)
         {
-            if (node is ProgramNode programNode)
-            {
-                return RunProgram(programNode, _Context);
-            }
+            if (node is ProgramNode programNode) return RunProgram(programNode, _Context);
 
-            if (node is IStatementNode statementNode)
-            {
-                return RunStatement(statementNode, _Context);
-            }
+            if (node is IStatementNode statementNode) return RunStatement(statementNode, _Context);
             Console.WriteLine("Error occured: Could not run node of type " + node);
             return new RuntimeNull();
         }
@@ -66,9 +61,12 @@ namespace Spelllang.Interpreter
         {
             switch (statement)
             {
-                case ExpressionStatement expressionStatement: return RunExpression(expressionStatement.Expression, _Context);
+                case ExpressionStatement expressionStatement:
+                    return RunExpression(expressionStatement.Expression, _Context);
                 case IExpressionNode expressionNode: return RunExpression(expressionNode, _Context);
-                default: Console.WriteLine("Unknown statement type " + statement); return null;
+                default:
+                    Console.WriteLine("Unknown statement type " + statement);
+                    return null;
             }
         }
 
@@ -77,49 +75,54 @@ namespace Spelllang.Interpreter
             switch (expression)
             {
                 case AssignExpression assignNode:
-                    IRuntimeVariableBase value = RunExpression(assignNode.Value, _Context);
+                    var value = RunExpression(assignNode.Value, _Context);
                     _Context.Register(assignNode.Identifier, value);
                     return value;
                 case CallExpression callNode:
-                    IRuntimeVariableBase node = RunExpression(callNode.Identifier, _Context);
+                    var node = RunExpression(callNode.Identifier, _Context);
+                    if (node == null)
+                    {
+                        Console.WriteLine("Undefined function: " + callNode.Identifier.ToReadableString());
+                        return new RuntimeNull();
+                    }
                     switch (node)
                     {
                         case RuntimeFunction fnNode: return RunFunction(fnNode, callNode, _Context);
-                        case Builtins.IRuntimeBuiltin builtinNode: return RunBuiltin(builtinNode, callNode, _Context);
+                        case IRuntimeBuiltin builtinNode: return RunBuiltin(builtinNode, callNode, _Context);
                         default:
-                            Console.WriteLine("Unexpected resolution for function call " + node.GetType());
+                            Console.WriteLine("Unexpected resolution for function call: " + node.ToReadableString());
                             return new RuntimeNull();
                     }
                 case InfixExpression infixNode:
-                    return Operations.RunInfixExpression(infixNode.Operator, RunStatement(infixNode.Left, _Context), RunStatement(infixNode.Right, _Context));
+                    return Operations.RunInfixExpression(infixNode.Operator, RunStatement(infixNode.Left, _Context),
+                        RunStatement(infixNode.Right, _Context));
                 case BooleanExpression booleanNode: return new RuntimeBoolean(booleanNode.Value);
                 case StringExpression stringNode: return new RuntimeString(stringNode.Value);
                 case FloatExpression floatNode: return new RuntimeFloat(floatNode.Value);
                 case IntegerExpression integerNode: return new RuntimeInt(integerNode.Value);
-                case IdentifierExpression identifierExpression: return _Context.Retrieve(identifierExpression.IdentifierName);
-                default: Console.WriteLine("Unknown expression type " + expression); return null;
+                case IdentifierExpression identifierExpression:
+                    return _Context.Retrieve(identifierExpression.IdentifierName);
+                default:
+                    Console.WriteLine("Unknown expression type " + expression);
+                    return null;
             }
         }
 
         private IRuntimeVariableBase RunFunction(RuntimeFunction program, CallExpression callNode, Context _Context)
         {
-            Context callContext = _Context.Enclose();
-            List<IRuntimeVariableBase> arguments = new List<IRuntimeVariableBase>();
-            for (int i = 0; i < Math.Max(callNode.Arguments.Count, program.GetArgumentNames().Count); i++)
-            {
+            var callContext = _Context.Enclose();
+            var arguments = new List<IRuntimeVariableBase>();
+            for (var i = 0; i < Math.Max(callNode.Arguments.Count, program.GetArgumentNames().Count); i++)
                 // This will fail if there is an argument mismatch. Good.
                 callContext.Register(program.GetArgumentNames()[i], RunExpression(callNode.Arguments[i], _Context));
-            }
             return RunProgram(program.GetValue(), callContext);
         }
 
-        private IRuntimeVariableBase RunBuiltin(Builtins.IRuntimeBuiltin builtin, CallExpression callNode, Context _Context)
+        private IRuntimeVariableBase RunBuiltin(IRuntimeBuiltin builtin, CallExpression callNode, Context _Context)
         {
-            List<IRuntimeVariableBase> arguments = new List<IRuntimeVariableBase>();
-            for (int i = 0; i < callNode.Arguments.Count; i++)
-            {
+            var arguments = new List<IRuntimeVariableBase>();
+            for (var i = 0; i < callNode.Arguments.Count; i++)
                 arguments.Add(RunExpression(callNode.Arguments[i], _Context));
-            }
             return builtin.Call(arguments);
         }
     }
