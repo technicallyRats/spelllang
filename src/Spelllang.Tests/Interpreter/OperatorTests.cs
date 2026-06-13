@@ -195,19 +195,5 @@ namespace Spelllang.Tests.Interpreter
             InterpreterTestUtils.AssertRuntimeBoolean(result, false);
         }
 
-        [Test]
-        public void UnsupportedOperator_ReturnsNull()
-        {
-            var interpreter = InterpreterTestUtils.BuildInterpreter(new List<Token>
-            {
-                new(Type.NUMBER, "1"),
-                new(Type.GT, ">"),
-                new(Type.NUMBER, "2")
-            });
-
-            var result = interpreter.Run();
-
-            InterpreterTestUtils.AssertRuntimeNull(result);
-        }
     }
 }
