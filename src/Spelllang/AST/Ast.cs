@@ -33,7 +33,7 @@ namespace Spelllang.AST
         public string ToReadableString()
         {
             // Start with 64 expected size, this can outgrow therefore this is not critical
-            StringBuilder sb = new StringBuilder("Statements:", 64);
+            var sb = new StringBuilder("Statements:", 64);
             sb.AppendLine();
             var counter = 1;
             Statements.ForEach(element => { sb.AppendLine(counter++ + ".\t" + element.ToReadableString()); });
@@ -195,6 +195,12 @@ namespace Spelllang.AST
         {
             // Start with 64 expected size, this can outgrow therefore this is not critical
             var sb = new StringBuilder("Calling ", 64);
+            if (Arguments.Count == 0)
+            {
+                sb.AppendFormat("{0} with no arguments ", Identifier.ToReadableString());
+                return sb.ToString();
+            }
+
             sb.AppendFormat("{0} with arguments ", Identifier.ToReadableString());
             Arguments.ForEach(element => { sb.AppendFormat("{0},", element.ToReadableString()); });
             // This feels illegal
