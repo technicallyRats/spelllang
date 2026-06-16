@@ -11,6 +11,16 @@ namespace Spelllang.Interpreter
             {
                 case "==":
                     return RunEqual(left, right);
+                case "+":
+                    return RunPlus(left, right);
+                case "-":
+                    return RunMinus(left, right);
+                case "*":
+                    return RunMultiply(left, right);
+                case "/":
+                    return RunDivide(left, right);
+                case "%":
+                    return RunModulo(left, right);
                 default:
                     Console.WriteLine("Unsupported operator " + op);
                     return new RuntimeNull();
@@ -36,6 +46,91 @@ namespace Spelllang.Interpreter
 
             if (left is IRuntimeValueBase<bool> leftBool && right is IRuntimeValueBase<bool> rightBool)
                 return new RuntimeBoolean(leftBool.GetValue() == rightBool.GetValue());
+
+            return new RuntimeNull();
+        }
+
+        private static IRuntimeVariableBase RunPlus(IRuntimeVariableBase left, IRuntimeVariableBase right)
+        {
+            if (left.GetType() != right.GetType())
+            {
+                Console.WriteLine("For now only addition between two variables of the same type is supported");
+                return new RuntimeNull();
+            }
+
+            if (left is IRuntimeValueBase<int> leftInt && right is IRuntimeValueBase<int> rightInt)
+                return new RuntimeInt(leftInt.GetValue() + rightInt.GetValue());
+
+            if (left is IRuntimeValueBase<float> leftFloat && right is IRuntimeValueBase<float> rightFloat)
+                return new RuntimeFloat(leftFloat.GetValue() + rightFloat.GetValue());
+
+            return new RuntimeNull();
+        }
+
+        private static IRuntimeVariableBase RunMinus(IRuntimeVariableBase left, IRuntimeVariableBase right)
+        {
+            if (left.GetType() != right.GetType())
+            {
+                Console.WriteLine("For now only comparison between two variables of the same type are supported");
+                return new RuntimeNull();
+            }
+
+            if (left is IRuntimeValueBase<int> leftInt && right is IRuntimeValueBase<int> rightInt)
+                return new RuntimeInt(leftInt.GetValue() - rightInt.GetValue());
+
+            if (left is IRuntimeValueBase<float> leftFloat && right is IRuntimeValueBase<float> rightFloat)
+                return new RuntimeFloat(leftFloat.GetValue() - rightFloat.GetValue());
+
+            return new RuntimeNull();
+        }
+
+        private static IRuntimeVariableBase RunMultiply(IRuntimeVariableBase left, IRuntimeVariableBase right)
+        {
+            if (left.GetType() != right.GetType())
+            {
+                Console.WriteLine("For now only multiplication between two variables of the same type is supported");
+                return new RuntimeNull();
+            }
+
+            if (left is IRuntimeValueBase<int> leftInt && right is IRuntimeValueBase<int> rightInt)
+                return new RuntimeInt(leftInt.GetValue() * rightInt.GetValue());
+
+            if (left is IRuntimeValueBase<float> leftFloat && right is IRuntimeValueBase<float> rightFloat)
+                return new RuntimeFloat(leftFloat.GetValue() * rightFloat.GetValue());
+
+            return new RuntimeNull();
+        }
+
+        private static IRuntimeVariableBase RunDivide(IRuntimeVariableBase left, IRuntimeVariableBase right)
+        {
+            if (left.GetType() != right.GetType())
+            {
+                Console.WriteLine("For now only division between two variables of the same type is supported");
+                return new RuntimeNull();
+            }
+
+            if (left is IRuntimeValueBase<int> leftInt && right is IRuntimeValueBase<int> rightInt)
+                return new RuntimeInt(leftInt.GetValue() / rightInt.GetValue());
+
+            if (left is IRuntimeValueBase<float> leftFloat && right is IRuntimeValueBase<float> rightFloat)
+                return new RuntimeFloat(leftFloat.GetValue() / rightFloat.GetValue());
+
+            return new RuntimeNull();
+        }
+
+        private static IRuntimeVariableBase RunModulo(IRuntimeVariableBase left, IRuntimeVariableBase right)
+        {
+            if (left.GetType() != right.GetType())
+            {
+                Console.WriteLine("For now only modulo between two variables of the same type is supported");
+                return new RuntimeNull();
+            }
+
+            if (left is IRuntimeValueBase<int> leftInt && right is IRuntimeValueBase<int> rightInt)
+                return new RuntimeInt(leftInt.GetValue() % rightInt.GetValue());
+
+            if (left is IRuntimeValueBase<float> leftFloat && right is IRuntimeValueBase<float> rightFloat)
+                return new RuntimeFloat(leftFloat.GetValue() % rightFloat.GetValue());
 
             return new RuntimeNull();
         }

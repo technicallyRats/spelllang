@@ -1,9 +1,14 @@
+using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
+using Spelllang.AST;
 using Spelllang.Lexer;
 
 namespace Spelllang.Tests.Interpreter
 {
+    /*
+     * TODO: Unify this with other tests
+     */
     [TestFixture]
     public class OperatorTests
     {
@@ -195,5 +200,42 @@ namespace Spelllang.Tests.Interpreter
             InterpreterTestUtils.AssertRuntimeBoolean(result, false);
         }
 
+        public static IEnumerable SimpleInfixTestCases
+        {
+            get
+            {
+                yield return BuildSimpleInfixOperatorTestCase("+", Type.PLUS, 6).SetName("Simple plus");
+                yield return BuildSimpleInfixOperatorTestCase("-", Type.MINUS, 0).SetName("Simple minus");
+                yield return BuildSimpleInfixOperatorTestCase("*", Type.MULTIPLY, 9).SetName("Simple multiply");
+                yield return BuildSimpleInfixOperatorTestCase("/", Type.DIVIDE, 1).SetName("Simple divide");
+                yield return BuildSimpleInfixOperatorTestCase("%", Type.MODULO, 0).SetName("Simple modulo");
+            }
+        }
+
+        [Test]
+        [TestCaseSource(nameof(SimpleInfixTestCases))]
+        public void Simple_Integer_Operators(List<Token> input, int expected)
+        {
+            var interpreter = InterpreterTestUtils.BuildInterpreter(input);
+
+            var result = interpreter.Run();
+
+            InterpreterTestUtils.AssertRuntimeInt(result, expected);
+        }
+
+        private static TestCaseData BuildSimpleInfixOperatorTestCase(string op, Type operatorType, int expectedResult)
+        {
+            {
+                return new TestCaseData(
+                    new List<Token>
+                    {
+                        new(Type.NUMBER, "3"),
+                        new(operatorType, op),
+                        new(Type.NUMBER, "3")
+                    },
+                    expectedResult
+                );
+            }
+        }
     }
 }

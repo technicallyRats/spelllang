@@ -1,4 +1,3 @@
-
 using System.Text.RegularExpressions;
 
 namespace Spelllang.Lexer
@@ -7,7 +6,6 @@ namespace Spelllang.Lexer
 
     public class StateFnContainer
     {
-
         private static readonly string ALLOWED_IDENTIFIER_START_CHARACTERS = @"^[a-zA-Z_]+$";
 
         private static readonly string NUMBER_INITIAL = @"^[0-9]+$";
@@ -23,15 +21,9 @@ namespace Spelllang.Lexer
                 return LexLine;
             }
 
-            if (Regex.IsMatch(lexer.Current(), ALLOWED_IDENTIFIER_START_CHARACTERS))
-            {
-                return LexIdentifier;
-            }
+            if (Regex.IsMatch(lexer.Current(), ALLOWED_IDENTIFIER_START_CHARACTERS)) return LexIdentifier;
 
-            if (Regex.IsMatch(lexer.Current(), NUMBER_INITIAL))
-            {
-                return LexNumber;
-            }
+            if (Regex.IsMatch(lexer.Current(), NUMBER_INITIAL)) return LexNumber;
 
             switch (lexer.Current())
             {
@@ -51,6 +43,16 @@ namespace Spelllang.Lexer
                     return BuildSingleEmitStateFn(Type.PARENTHESES_LEFT);
                 case ")":
                     return BuildSingleEmitStateFn(Type.PARENTHESES_RIGHT);
+                case "+":
+                    return BuildSingleEmitStateFn(Type.PLUS);
+                case "-":
+                    return BuildSingleEmitStateFn(Type.MINUS);
+                case "*":
+                    return BuildSingleEmitStateFn(Type.MULTIPLY);
+                case "/":
+                    return BuildSingleEmitStateFn(Type.DIVIDE);
+                case "%":
+                    return BuildSingleEmitStateFn(Type.MODULO);
                 case "=":
                     return BuildConditionalEmitStateFn("=", Type.EQUAL, Type.ASSIGN);
                 case "!":
@@ -64,6 +66,7 @@ namespace Spelllang.Lexer
                     lexer.Next();
                     break;
             }
+
             return LexLine;
         }
 
@@ -91,19 +94,17 @@ namespace Spelllang.Lexer
                 {
                     lexer.Emit(noMatchType);
                 }
+
                 return LexLine;
             };
         }
 
         public static StateFn LexString(Lexer lexer)
         {
-            string terminatingCharacter = lexer.Current();
+            var terminatingCharacter = lexer.Current();
             lexer.Next();
             lexer.Ignore();
-            while (lexer.Current() != terminatingCharacter)
-            {
-                lexer.Next();
-            }
+            while (lexer.Current() != terminatingCharacter) lexer.Next();
             lexer.Emit(Type.STRING);
             lexer.Next();
             lexer.Ignore();
@@ -113,11 +114,9 @@ namespace Spelllang.Lexer
         public static StateFn LexIdentifier(Lexer lexer)
         {
             while (Regex.IsMatch(lexer.Current(), ALLOWED_IDENTIFIER_CHARACTERS))
-            {
-                if (lexer.Next() == null){
+                if (lexer.Next() == null)
                     break;
-                }
-            }
+
             lexer.Emit(Type.IDENTIFIER);
             return LexLine;
         }
@@ -134,10 +133,9 @@ namespace Spelllang.Lexer
 
                 // number is format 1_000 or 3.41
                 if ((lexer.Current() == "_" || lexer.Current() == ".") && Regex.IsMatch(lexer.Peek(), NUMBER_INITIAL))
-                {
                     lexer.Next();
-                }
             }
+
             lexer.Emit(Type.NUMBER);
             return LexLine;
         }

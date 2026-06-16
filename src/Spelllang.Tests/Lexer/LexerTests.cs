@@ -12,7 +12,7 @@ namespace Spelllang.Tests.Lexer
         [TestCase("\r", Type.EOF, "")]
         public void Lex_IgnoresSpecial(string input, Type type, string value)
         {
-            var expected = new List<Token> { new Token(type, value) };
+            var expected = new List<Token> { new(type, value) };
             AssertTokenList(Lex(input), expected);
         }
 
@@ -21,7 +21,7 @@ namespace Spelllang.Tests.Lexer
         [TestCase("1_000_000", Type.NUMBER, "1_000_000")]
         public void Lex_Number(string input, Type type, string value)
         {
-            var expected = new List<Token> { new Token(type, value) };
+            var expected = new List<Token> { new(type, value) };
             AssertTokenList(Lex(input), expected);
         }
 
@@ -30,7 +30,7 @@ namespace Spelllang.Tests.Lexer
         [TestCase("'hello\nworld'", Type.STRING, "hello\nworld")]
         public void Lex_String(string input, Type type, string value)
         {
-            var expected = new List<Token> { new Token(type, value)};
+            var expected = new List<Token> { new(type, value) };
             AssertTokenList(Lex(input), expected);
         }
 
@@ -39,7 +39,7 @@ namespace Spelllang.Tests.Lexer
         [TestCase("_TEST1", Type.IDENTIFIER, "_TEST1")]
         public void Lex_Identifier(string input, Type type, string value)
         {
-            var expected = new List<Token> { new Token(type, value)};
+            var expected = new List<Token> { new(type, value) };
             AssertTokenList(Lex(input), expected);
         }
 
@@ -47,10 +47,8 @@ namespace Spelllang.Tests.Lexer
         public void Lex_Assign(string input, params object[] tokenArgs)
         {
             var expected = new List<Token>();
-            for (int i = 0; i < tokenArgs.Length; i += 2)
-            {
+            for (var i = 0; i < tokenArgs.Length; i += 2)
                 expected.Add(new Token((Type)tokenArgs[i], (string)tokenArgs[i + 1]));
-            }
             AssertTokenList(Lex(input), expected);
         }
 
@@ -60,53 +58,57 @@ namespace Spelllang.Tests.Lexer
         [TestCase("1 < 1", Type.NUMBER, "1", Type.LT, "<", Type.NUMBER, "1")]
         [TestCase("1 <= 1", Type.NUMBER, "1", Type.LTE, "<=", Type.NUMBER, "1")]
         [TestCase("1 != 1", Type.NUMBER, "1", Type.NOT_EQUAL, "!=", Type.NUMBER, "1")]
+        [TestCase("1 - 1", Type.NUMBER, "1", Type.MINUS, "-", Type.NUMBER, "1")]
+        [TestCase("1 + 1", Type.NUMBER, "1", Type.PLUS, "+", Type.NUMBER, "1")]
+        [TestCase("1 * 1", Type.NUMBER, "1", Type.MULTIPLY, "*", Type.NUMBER, "1")]
+        [TestCase("1 / 1", Type.NUMBER, "1", Type.DIVIDE, "/", Type.NUMBER, "1")]
+        [TestCase("1 % 1", Type.NUMBER, "1", Type.MODULO, "%", Type.NUMBER, "1")]
         [TestCase("!ABC", Type.NOT, "!", Type.IDENTIFIER, "ABC")]
         public void Lex_Operators(string input, params object[] tokenArgs)
         {
             var expected = new List<Token>();
-            for (int i = 0; i < tokenArgs.Length; i += 2)
-            {
+            for (var i = 0; i < tokenArgs.Length; i += 2)
                 expected.Add(new Token((Type)tokenArgs[i], (string)tokenArgs[i + 1]));
-            }
             AssertTokenList(Lex(input), expected);
         }
 
         [Test]
         public void Lex_FunctionCall()
         {
-            string input = @"PRINT('1', ' + ', 2)";
+            var input = @"PRINT('1', ' + ', 2)";
             var expected = new List<Token>
             {
-                new Token(Type.IDENTIFIER, "PRINT"),
-                new Token(Type.PARENTHESES_LEFT, "("),
-                new Token(Type.STRING, "1"),
-                new Token(Type.COMMA, ","),
-                new Token(Type.STRING, " + "),
-                new Token(Type.COMMA, ","),
-                new Token(Type.NUMBER, "2"),
-                new Token(Type.PARENTHESES_RIGHT, ")")
+                new(Type.IDENTIFIER, "PRINT"),
+                new(Type.PARENTHESES_LEFT, "("),
+                new(Type.STRING, "1"),
+                new(Type.COMMA, ","),
+                new(Type.STRING, " + "),
+                new(Type.COMMA, ","),
+                new(Type.NUMBER, "2"),
+                new(Type.PARENTHESES_RIGHT, ")")
             };
             AssertTokenList(Lex(input), expected);
         }
 
         private void AssertTokenList(List<Token> actual, List<Token> expected)
         {
-            string actualString = string.Join(" ", actual);
-            string expectedString = string.Join(" ", expected);
-            Assert.That(actualString,Is.EqualTo(expectedString).NoClip); 
+            var actualString = string.Join(" ", actual);
+            var expectedString = string.Join(" ", expected);
+            Assert.That(actualString, Is.EqualTo(expectedString).NoClip);
         }
 
         private List<Token> Lex(string input)
         {
-            Spelllang.Lexer.Lexer lexer = new Spelllang.Lexer.Lexer(input);
-            List<Token> tokens = new List<Token>();
+            var lexer = new Spelllang.Lexer.Lexer(input);
+            var tokens = new List<Token>();
 
-            TokenEnumerator enumerator = lexer.GetEnumerator();
+            var enumerator = lexer.GetEnumerator();
             do
             {
                 tokens.Add(enumerator.Current());
                 enumerator.Next();
             } while (enumerator.Current().Type != Type.EOF);
+
             return tokens;
         }
     }

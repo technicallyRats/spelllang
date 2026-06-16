@@ -7,7 +7,9 @@ public class Program
 {
     private static void Main(string[] args)
     {
-        var l = new Lexer(@"'ABC';
+        var l = new Lexer(@"
+    1 + 1;
+    'ABC';
     'DEF';
     '';
     PRINT('1', ' + ', 2);

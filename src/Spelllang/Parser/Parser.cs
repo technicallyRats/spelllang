@@ -55,6 +55,11 @@ namespace Spelllang.Parser
             InfixParserFn = new Dictionary<Type, ParseInfixExpressionFn>
             {
                 { Type.EQUAL, ParseInfixExpression },
+                { Type.PLUS, ParseInfixExpression },
+                { Type.MINUS, ParseInfixExpression },
+                { Type.MULTIPLY, ParseInfixExpression },
+                { Type.DIVIDE, ParseInfixExpression },
+                { Type.MODULO, ParseInfixExpression },
                 { Type.ASSIGN, ParseAssignExpression },
                 { Type.PARENTHESES_LEFT, ParseCallExpression }
             };
@@ -62,6 +67,11 @@ namespace Spelllang.Parser
             PrecedenceMapping = new Dictionary<Type, Precedence>
             {
                 { Type.ASSIGN, Precedence.PRECEDENCE_ASSIGN },
+                { Type.MINUS, Precedence.PRECEDENCE_STRICH },
+                { Type.PLUS, Precedence.PRECEDENCE_STRICH },
+                { Type.MULTIPLY, Precedence.PRECEDENCE_PUNKT },
+                { Type.DIVIDE, Precedence.PRECEDENCE_PUNKT },
+                { Type.MODULO, Precedence.PRECEDENCE_PUNKT },
                 { Type.EQUAL, Precedence.PRECEDENCE_EQUAL },
                 { Type.PARENTHESES_LEFT, Precedence.PRECEDENCE_CALL }
             };

@@ -3,7 +3,6 @@ using System.Linq;
 
 namespace Spelllang.Lexer
 {
-
     public enum Type
     {
         EMPTY,
@@ -17,6 +16,11 @@ namespace Spelllang.Lexer
         GTE,
         LT,
         LTE,
+        PLUS,
+        MINUS,
+        MULTIPLY,
+        DIVIDE,
+        MODULO,
         PARENTHESES_LEFT,
         PARENTHESES_RIGHT,
         COMMA,
@@ -29,7 +33,7 @@ namespace Spelllang.Lexer
 
     public static class KeyWords
     {
-        private static readonly Dictionary<string, Type> ReservedKeyWords = new Dictionary<string, Type>
+        private static readonly Dictionary<string, Type> ReservedKeyWords = new()
         {
             { "true", Type.BOOLEAN },
             { "false", Type.BOOLEAN }
@@ -37,9 +41,8 @@ namespace Spelllang.Lexer
 
         public static Type GetValueOrDefault(string keyword, Type fallback)
         {
-            return ReservedKeyWords.TryGetValue(keyword, out Type value) ? value : fallback;
+            return ReservedKeyWords.TryGetValue(keyword, out var value) ? value : fallback;
         }
-
     }
 
     public struct Token
@@ -53,7 +56,7 @@ namespace Spelllang.Lexer
         public Type Type { get; }
         public string Value { get; }
 
-        override public string ToString()
+        public override string ToString()
         {
             return Type + "->" + Value;
         }
@@ -72,10 +75,7 @@ namespace Spelllang.Lexer
 
         public Token Current()
         {
-            if (CurrentIndex > TokenList.Count - 1)
-            {
-                return new Token(Type.EOF, "");
-            }
+            if (CurrentIndex > TokenList.Count - 1) return new Token(Type.EOF, "");
 
             return TokenList.ElementAt(CurrentIndex);
         }
@@ -93,20 +93,14 @@ namespace Spelllang.Lexer
 
         public Token Peek()
         {
-            if (CurrentIndex >= TokenList.Count - 1)
-            {
-                return new Token(Type.EOF, "");
-            }
+            if (CurrentIndex >= TokenList.Count - 1) return new Token(Type.EOF, "");
 
             return TokenList[CurrentIndex + 1];
         }
 
         public bool MoveNext()
         {
-            if (Next().Type == Type.EOF)
-            {
-                return false;
-            }
+            if (Next().Type == Type.EOF) return false;
 
             return CurrentIndex >= TokenList.Count - 1;
         }
