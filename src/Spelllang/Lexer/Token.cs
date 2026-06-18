@@ -23,11 +23,17 @@ namespace Spelllang.Lexer
         MODULO,
         PARENTHESES_LEFT,
         PARENTHESES_RIGHT,
+        BRACES_LEFT,
+        BRACES_RIGHT,
         COMMA,
         NUMBER,
         STRING,
         SEMICOLON,
         BOOLEAN,
+        FUNCTION,
+        RETURN,
+        NULL,
+
         UNKNOWN
     }
 
@@ -36,7 +42,10 @@ namespace Spelllang.Lexer
         private static readonly Dictionary<string, Type> ReservedKeyWords = new()
         {
             { "true", Type.BOOLEAN },
-            { "false", Type.BOOLEAN }
+            { "false", Type.BOOLEAN },
+            { "function", Type.FUNCTION },
+            { "return", Type.RETURN },
+            { "null", Type.NULL }
         };
 
         public static Type GetValueOrDefault(string keyword, Type fallback)
@@ -62,7 +71,7 @@ namespace Spelllang.Lexer
         }
     }
 
-    // custom enumerator like implementation to support peek
+// custom enumerator like implementation to support peek
     public class TokenEnumerator
     {
         private List<Token> TokenList;

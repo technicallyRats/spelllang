@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -38,6 +39,63 @@ namespace Spelllang.AST
             var counter = 1;
             Statements.ForEach(element => { sb.AppendLine(counter++ + ".\t" + element.ToReadableString()); });
             return sb.ToString();
+        }
+    }
+
+    public struct FunctionStatement : IStatementNode
+    {
+        public static string ANONYMOUS_FUNCTION_NAME = "anon";
+        public string FunctionName { get; }
+        public List<IdentifierExpression> ArgumentIdentifiers { get; }
+
+        public ProgramNode Program;
+
+        public FunctionStatement(string functionName, List<IdentifierExpression> argumentIdentifiers,
+            ProgramNode program)
+        {
+            FunctionName = functionName;
+            ArgumentIdentifiers = argumentIdentifiers;
+            Program = program;
+        }
+
+        public string ToReadableString()
+        {
+            {
+                // Start with 64 expected size, this can outgrow therefore this is not critical
+                var sb = new StringBuilder("Function ", 64);
+                sb.Append(FunctionName);
+                sb.Append("(");
+                ArgumentIdentifiers.ForEach(element =>
+                {
+                    sb.Append(element.ToReadableString());
+                    sb.Append(", ");
+                });
+                sb.Append(")");
+                sb.Append(":");
+                sb.AppendLine();
+                sb.Append(Program.ToReadableString());
+                return sb.ToString();
+            }
+        }
+
+        public bool isAnonymous()
+        {
+            return FunctionName == ANONYMOUS_FUNCTION_NAME;
+        }
+    }
+
+    public struct ReturnStatement : IStatementNode
+    {
+        public IExpressionNode ReturnValue;
+
+        public ReturnStatement(IExpressionNode returnValue)
+        {
+            ReturnValue = returnValue;
+        }
+
+        public string ToReadableString()
+        {
+            return $"Returning {ReturnValue.ToReadableString()}";
         }
     }
 
@@ -168,6 +226,14 @@ namespace Spelllang.AST
         public string ToReadableString()
         {
             return $"Identifier {IdentifierName}";
+        }
+    }
+
+    public struct NullExpression : IExpressionNode
+    {
+        public string ToReadableString()
+        {
+            return $"Null";
         }
     }
 

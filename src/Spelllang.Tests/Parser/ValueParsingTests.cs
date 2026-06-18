@@ -92,6 +92,22 @@ namespace Spelllang.Tests.Parser
             }
         }
 
+        public static IEnumerable NullTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(
+                    new List<Token> { new(Type.NULL, "null") },
+                    new ProgramNode(new List<IStatementNode>
+                    {
+                        new ExpressionStatement(
+                            new NullExpression()
+                        )
+                    })
+                ).SetName("Null");
+            }
+        }
+
         [Test]
         [TestCaseSource(nameof(NumberTestCases))]
         public void Parse_Numbers(List<Token> input, ProgramNode expected)
@@ -109,6 +125,13 @@ namespace Spelllang.Tests.Parser
         [Test]
         [TestCaseSource(nameof(StringTestCases))]
         public void Parse_String(List<Token> input, ProgramNode expected)
+        {
+            ParsingTestUtils.AssertAst(ParsingTestUtils.Parse(input), expected);
+        }
+
+        [Test]
+        [TestCaseSource(nameof(NullTestCases))]
+        public void Parse_Null(List<Token> input, ProgramNode expected)
         {
             ParsingTestUtils.AssertAst(ParsingTestUtils.Parse(input), expected);
         }

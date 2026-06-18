@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Spelllang.AST;
 using Spelllang.Lexer;
 using Type = Spelllang.Lexer.Type;
@@ -49,7 +50,8 @@ namespace Spelllang.Parser
                 { Type.STRING, ParseStringExpression },
                 { Type.BOOLEAN, ParseBooleanExpression },
                 { Type.IDENTIFIER, ParseIdentifierExpression },
-                { Type.SEMICOLON, ParseSemicolonExpression }
+                { Type.SEMICOLON, ParseSemicolonExpression },
+                { Type.NULL, ParseNullExpression }
             };
 
             InfixParserFn = new Dictionary<Type, ParseInfixExpressionFn>
@@ -101,7 +103,7 @@ namespace Spelllang.Parser
         private void Parse()
         {
             var statements = new List<IStatementNode>();
-            while (!Done && LexerEnumerator.Current().Type != Type.EOF)
+            while (!Done && !CurrentItemTypeEquals(Type.EOF) && !CurrentItemTypeEquals(Type.BRACES_RIGHT))
             {
                 var statement = ParseStatement();
                 if (statement != null) statements.Add(statement);
@@ -112,7 +114,13 @@ namespace Spelllang.Parser
 
         private IStatementNode ParseStatement()
         {
-            IStatementNode result = new ExpressionStatement(ParseExpression(Precedence.PRECEDENCE_LOWEST));
+            var result = CurrentItemType() switch
+            {
+                Type.RETURN => ParseReturnStatement(),
+                Type.FUNCTION => ParseFunctionStatement(),
+                _ => new ExpressionStatement(ParseExpression(Precedence.PRECEDENCE_LOWEST))
+            };
+
             LexerEnumerator.Next();
             return result;
         }
@@ -171,6 +179,11 @@ namespace Spelllang.Parser
             return null;
         }
 
+        private IExpressionNode ParseNullExpression()
+        {
+            return new NullExpression();
+        }
+
         private IExpressionNode ParseNumberExpression()
         {
             // Remove _ for syntactic sugar
@@ -225,6 +238,45 @@ namespace Spelllang.Parser
             return new SemicolonExpression();
         }
 
+        private IStatementNode ParseFunctionStatement()
+        {
+            LexerEnumerator.Next();
+            var functionName = FunctionStatement.ANONYMOUS_FUNCTION_NAME;
+            if (CurrentItemTypeEquals(Type.IDENTIFIER))
+            {
+                functionName = LexerEnumerator.Current().Value;
+                LexerEnumerator.Next();
+            }
+
+            var arguments = ParseExpressionList(Type.PARENTHESES_RIGHT);
+            if (arguments.Count > 0 && !arguments.All(item => item != null && item is IdentifierExpression))
+            {
+                Console.WriteLine("Expected identifiers as arguments but got " + arguments);
+                return null;
+            }
+
+            var argumentIdentifiers = arguments.Cast<IdentifierExpression>().ToList();
+
+            LexerEnumerator.Next();
+            var functionBody = ParseBlock();
+            return new FunctionStatement(functionName, argumentIdentifiers, functionBody);
+        }
+
+        private IStatementNode ParseReturnStatement()
+        {
+            LexerEnumerator.Next();
+            if (CurrentItemTypeEquals(Type.BRACES_RIGHT) || CurrentItemTypeEquals(Type.SEMICOLON))
+                return new ReturnStatement(new NullExpression());
+            return new ReturnStatement(ParseExpression(Precedence.PRECEDENCE_LOWEST));
+        }
+
+        // TODO: This is clever and dumb...clever because it works, dumb because this has to jump through extra hoops due to my poorly designed API
+        private ProgramNode ParseBlock()
+        {
+            if (CurrentItemTypeEquals(Type.BRACES_LEFT)) LexerEnumerator.Next();
+            return new Parser(LexerEnumerator).GetRootProgram();
+        }
+
         private Precedence CurrItemPrecedence()
         {
             return PrecedenceMapping.TryGetValue(LexerEnumerator.Current().Type, out var value)
@@ -244,9 +296,14 @@ namespace Spelllang.Parser
             return LexerEnumerator.Peek().Type == expected;
         }
 
+        private Type CurrentItemType()
+        {
+            return LexerEnumerator.Current().Type;
+        }
+
         private bool CurrentItemTypeEquals(Type expected)
         {
-            return LexerEnumerator.Current().Type == expected;
+            return CurrentItemType() == expected;
         }
     }
 }

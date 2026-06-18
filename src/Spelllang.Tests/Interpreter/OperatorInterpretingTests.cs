@@ -10,7 +10,7 @@ namespace Spelllang.Tests.Interpreter
      * TODO: Unify this with other tests
      */
     [TestFixture]
-    public class OperatorTests
+    public class OperatorInterpretingTests
     {
         private System.IO.TextWriter? _originalOut;
 

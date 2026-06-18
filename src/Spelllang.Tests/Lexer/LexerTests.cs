@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Security.Claims;
 using Spelllang.Lexer;
 using NUnit.Framework;
 
@@ -11,6 +12,13 @@ namespace Spelllang.Tests.Lexer
         [TestCase("\n", Type.EOF, "")]
         [TestCase("\r", Type.EOF, "")]
         public void Lex_IgnoresSpecial(string input, Type type, string value)
+        {
+            var expected = new List<Token> { new(type, value) };
+            AssertTokenList(Lex(input), expected);
+        }
+
+        [TestCase("null", Type.NULL, "null")]
+        public void Lex_Null(string input, Type type, string value)
         {
             var expected = new List<Token> { new(type, value) };
             AssertTokenList(Lex(input), expected);
@@ -45,6 +53,18 @@ namespace Spelllang.Tests.Lexer
 
         [TestCase("A = 1", Type.IDENTIFIER, "A", Type.ASSIGN, "=", Type.NUMBER, "1")]
         public void Lex_Assign(string input, params object[] tokenArgs)
+        {
+            var expected = new List<Token>();
+            for (var i = 0; i < tokenArgs.Length; i += 2)
+                expected.Add(new Token((Type)tokenArgs[i], (string)tokenArgs[i + 1]));
+            AssertTokenList(Lex(input), expected);
+        }
+
+        [TestCase("function Test(a,b){\nreturn a\n}", Type.FUNCTION, "function", Type.IDENTIFIER, "Test",
+            Type.PARENTHESES_LEFT, "(", Type.IDENTIFIER, "a", Type.COMMA, ",", Type.IDENTIFIER, "b",
+            Type.PARENTHESES_RIGHT, ")", Type.BRACES_LEFT, "{", Type.RETURN, "return", Type.IDENTIFIER, "a",
+            Type.BRACES_RIGHT, "}")]
+        public void Lex_Function(string input, params object[] tokenArgs)
         {
             var expected = new List<Token>();
             for (var i = 0; i < tokenArgs.Length; i += 2)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Spelllang.AST;
 using Spelllang.Builtins;
 
@@ -63,7 +64,17 @@ namespace Spelllang.Interpreter
             {
                 case ExpressionStatement expressionStatement:
                     return RunExpression(expressionStatement.Expression, _Context);
-                case IExpressionNode expressionNode: return RunExpression(expressionNode, _Context);
+                case FunctionStatement functionStatement:
+                    var function =
+                        new RuntimeFunction(functionStatement.Program,
+                            functionStatement.ArgumentIdentifiers.Select(identifier => identifier.IdentifierName)
+                                .ToList());
+                    if (!functionStatement.isAnonymous()) _Context.Register(functionStatement.FunctionName, function);
+                    return function;
+                case ReturnStatement returnStatement:
+                    return RunExpression(returnStatement.ReturnValue, _Context);
+                case IExpressionNode expressionNode:
+                    return RunExpression(expressionNode, _Context);
                 default:
                     Console.WriteLine("Unknown statement type " + statement);
                     return null;
@@ -85,6 +96,7 @@ namespace Spelllang.Interpreter
                         Console.WriteLine("Undefined function: " + callNode.Identifier.ToReadableString());
                         return new RuntimeNull();
                     }
+
                     switch (node)
                     {
                         case RuntimeFunction fnNode: return RunFunction(fnNode, callNode, _Context);
@@ -100,6 +112,7 @@ namespace Spelllang.Interpreter
                 case StringExpression stringNode: return new RuntimeString(stringNode.Value);
                 case FloatExpression floatNode: return new RuntimeFloat(floatNode.Value);
                 case IntegerExpression integerNode: return new RuntimeInt(integerNode.Value);
+                case NullExpression _: return new RuntimeNull();
                 case IdentifierExpression identifierExpression:
                     return _Context.Retrieve(identifierExpression.IdentifierName);
                 default:

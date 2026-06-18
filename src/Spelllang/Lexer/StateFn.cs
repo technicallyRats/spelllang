@@ -53,6 +53,10 @@ namespace Spelllang.Lexer
                     return BuildSingleEmitStateFn(Type.DIVIDE);
                 case "%":
                     return BuildSingleEmitStateFn(Type.MODULO);
+                case "{":
+                    return BuildSingleEmitStateFn(Type.BRACES_LEFT);
+                case "}":
+                    return BuildSingleEmitStateFn(Type.BRACES_RIGHT);
                 case "=":
                     return BuildConditionalEmitStateFn("=", Type.EQUAL, Type.ASSIGN);
                 case "!":
