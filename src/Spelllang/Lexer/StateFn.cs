@@ -65,6 +65,10 @@ namespace Spelllang.Lexer
                     return BuildConditionalEmitStateFn("=", Type.GTE, Type.GT);
                 case "<":
                     return BuildConditionalEmitStateFn("=", Type.LTE, Type.LT);
+                case "&":
+                    return BuildConditionalEmitStateFn("&", Type.AND, Type.UNKNOWN);
+                case "|":
+                    return BuildConditionalEmitStateFn("|", Type.OR, Type.UNKNOWN);
                 default:
                     lexer.Emit(Type.UNKNOWN);
                     lexer.Next();

@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Spelllang.AST;
 using Spelllang.Lexer;
+using Type = Spelllang.Lexer.Type;
 
 namespace Spelllang.Tests.Interpreter
 {
@@ -17,14 +19,14 @@ namespace Spelllang.Tests.Interpreter
         [SetUp]
         public void SetUp()
         {
-            _originalOut = System.Console.Out;
-            System.Console.SetOut(new System.IO.StringWriter());
+            _originalOut = Console.Out;
+            Console.SetOut(new System.IO.StringWriter());
         }
 
         [TearDown]
         public void TearDown()
         {
-            System.Console.SetOut(_originalOut!);
+            Console.SetOut(_originalOut!);
         }
 
         [Test]
@@ -200,7 +202,7 @@ namespace Spelllang.Tests.Interpreter
             InterpreterTestUtils.AssertRuntimeBoolean(result, false);
         }
 
-        public static IEnumerable SimpleInfixTestCases
+        public static IEnumerable SimpleInfixIntegerTestCases
         {
             get
             {
@@ -212,15 +214,95 @@ namespace Spelllang.Tests.Interpreter
             }
         }
 
+        public static IEnumerable SimpleInfixIntegerToBooleanTestCases
+        {
+            get
+            {
+                yield return BuildSimpleInfixIntegerToBooleanOperatorTestCase(">", "3", "1", Type.GT, true)
+                    .SetName("Simple GT truthy");
+                yield return BuildSimpleInfixIntegerToBooleanOperatorTestCase(">", "1", "3", Type.GT, false)
+                    .SetName("Simple GT falsy");
+                yield return BuildSimpleInfixIntegerToBooleanOperatorTestCase(">=", "3", "3", Type.GTE, true)
+                    .SetName("Simple GTE truthy eq");
+                yield return BuildSimpleInfixIntegerToBooleanOperatorTestCase(">=", "3", "1", Type.GTE, true)
+                    .SetName("Simple GTE truthy gt");
+                yield return BuildSimpleInfixIntegerToBooleanOperatorTestCase(">=", "1", "3", Type.GTE, false)
+                    .SetName("Simple GTE falsy");
+                yield return BuildSimpleInfixIntegerToBooleanOperatorTestCase("<", "1", "3", Type.LT, true)
+                    .SetName("Simple LT truthy");
+                yield return BuildSimpleInfixIntegerToBooleanOperatorTestCase("<", "3", "1", Type.LT, false)
+                    .SetName("Simple LT falsy");
+                yield return BuildSimpleInfixIntegerToBooleanOperatorTestCase("<=", "3", "3", Type.LTE, true)
+                    .SetName("Simple LTE truthy eq");
+                yield return BuildSimpleInfixIntegerToBooleanOperatorTestCase("<=", "1", "3", Type.LTE, true)
+                    .SetName("Simple LTE truthy gt");
+                yield return BuildSimpleInfixIntegerToBooleanOperatorTestCase("<=", "3", "1", Type.LTE, false)
+                    .SetName("Simple LTE falsy");
+                yield return BuildSimpleInfixIntegerToBooleanOperatorTestCase("==", "1", "1", Type.EQUAL, true)
+                    .SetName("Simple EQ truthy");
+                yield return BuildSimpleInfixIntegerToBooleanOperatorTestCase("==", "3", "1", Type.EQUAL, false)
+                    .SetName("Simple EQ falsy");
+                yield return BuildSimpleInfixIntegerToBooleanOperatorTestCase("!=", "3", "1", Type.NOT_EQUAL, true)
+                    .SetName("Simple NEQ truthy");
+                yield return BuildSimpleInfixIntegerToBooleanOperatorTestCase("!=", "1", "1", Type.NOT_EQUAL, false)
+                    .SetName("Simple NEQ falsy");
+            }
+        }
+
+        public static IEnumerable SimpleInfixBooleanTestCases
+        {
+            get
+            {
+                yield return BuildSimpleInfixBooleanOperatorTestCase("&&", "true", "true", Type.AND, true)
+                    .SetName("Simple AND truthy");
+                yield return BuildSimpleInfixBooleanOperatorTestCase("&&", "false", "true", Type.AND, false)
+                    .SetName("Simple AND falsy");
+                yield return BuildSimpleInfixBooleanOperatorTestCase("&&", "true", "false", Type.AND, false)
+                    .SetName("Simple AND falsy (reverse)");
+                yield return BuildSimpleInfixBooleanOperatorTestCase("&&", "false", "false", Type.AND, false)
+                    .SetName("Simple AND falsy (total)");
+                yield return BuildSimpleInfixBooleanOperatorTestCase("||", "true", "true", Type.OR, true)
+                    .SetName("Simple OR truthy");
+                yield return BuildSimpleInfixBooleanOperatorTestCase("||", "false", "true", Type.OR, true)
+                    .SetName("Simple OR truthy (A)");
+                yield return BuildSimpleInfixBooleanOperatorTestCase("||", "true", "false", Type.OR, true)
+                    .SetName("Simple OR truthy (B)");
+                yield return BuildSimpleInfixBooleanOperatorTestCase("||", "false", "false", Type.OR, false)
+                    .SetName("Simple OR falsy");
+            }
+        }
+
         [Test]
-        [TestCaseSource(nameof(SimpleInfixTestCases))]
-        public void Simple_Integer_Operators(List<Token> input, int expected)
+        [TestCaseSource(nameof(SimpleInfixIntegerTestCases))]
+        public void Simple_Infix_Integer_Operators(List<Token> input, int expected)
         {
             var interpreter = InterpreterTestUtils.BuildInterpreter(input);
 
             var result = interpreter.Run();
 
             InterpreterTestUtils.AssertRuntimeInt(result, expected);
+        }
+
+        [Test]
+        [TestCaseSource(nameof(SimpleInfixIntegerToBooleanTestCases))]
+        public void Simple_Infix_Integer_To_Boolean_Operators(List<Token> input, bool expected)
+        {
+            var interpreter = InterpreterTestUtils.BuildInterpreter(input);
+
+            var result = interpreter.Run();
+
+            InterpreterTestUtils.AssertRuntimeBoolean(result, expected);
+        }
+
+        [Test]
+        [TestCaseSource(nameof(SimpleInfixBooleanTestCases))]
+        public void Simple_Infix_Boolean_Operators(List<Token> input, bool expected)
+        {
+            var interpreter = InterpreterTestUtils.BuildInterpreter(input);
+
+            var result = interpreter.Run();
+
+            InterpreterTestUtils.AssertRuntimeBoolean(result, expected);
         }
 
         private static TestCaseData BuildSimpleInfixOperatorTestCase(string op, Type operatorType, int expectedResult)
@@ -232,6 +314,42 @@ namespace Spelllang.Tests.Interpreter
                         new(Type.NUMBER, "3"),
                         new(operatorType, op),
                         new(Type.NUMBER, "3")
+                    },
+                    expectedResult
+                );
+            }
+        }
+
+        private static TestCaseData BuildSimpleInfixIntegerToBooleanOperatorTestCase(string op, string numberA,
+            string numberB,
+            Type operatorType,
+            bool expectedResult)
+        {
+            {
+                return new TestCaseData(
+                    new List<Token>
+                    {
+                        new(Type.NUMBER, numberA),
+                        new(operatorType, op),
+                        new(Type.NUMBER, numberB)
+                    },
+                    expectedResult
+                );
+            }
+        }
+
+        private static TestCaseData BuildSimpleInfixBooleanOperatorTestCase(string op, string boolA,
+            string boolB,
+            Type operatorType,
+            bool expectedResult)
+        {
+            {
+                return new TestCaseData(
+                    new List<Token>
+                    {
+                        new(Type.BOOLEAN, boolA),
+                        new(operatorType, op),
+                        new(Type.BOOLEAN, boolB)
                     },
                     expectedResult
                 );

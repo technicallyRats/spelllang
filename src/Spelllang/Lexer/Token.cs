@@ -33,6 +33,8 @@ namespace Spelllang.Lexer
         FUNCTION,
         RETURN,
         NULL,
+        AND,
+        OR,
 
         UNKNOWN
     }
