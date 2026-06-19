@@ -108,6 +108,9 @@ namespace Spelllang.Interpreter
                 case InfixExpression infixNode:
                     return Operations.RunInfixExpression(infixNode.Operator, RunStatement(infixNode.Left, _Context),
                         RunStatement(infixNode.Right, _Context));
+                case PrefixExpression prefixNode:
+                    return Operations.RunPrefixExpression(prefixNode.Operator,
+                        RunStatement(prefixNode.Right, _Context));
                 case BooleanExpression booleanNode: return new RuntimeBoolean(booleanNode.Value);
                 case StringExpression stringNode: return new RuntimeString(stringNode.Value);
                 case FloatExpression floatNode: return new RuntimeFloat(floatNode.Value);

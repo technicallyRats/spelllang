@@ -51,7 +51,10 @@ namespace Spelllang.Parser
                 { Type.BOOLEAN, ParseBooleanExpression },
                 { Type.IDENTIFIER, ParseIdentifierExpression },
                 { Type.SEMICOLON, ParseSemicolonExpression },
-                { Type.NULL, ParseNullExpression }
+                { Type.NULL, ParseNullExpression },
+                { Type.MINUS, ParsePrefixExpression },
+                { Type.PLUS, ParsePrefixExpression },
+                { Type.NOT, ParsePrefixExpression }
             };
 
             InfixParserFn = new Dictionary<Type, ParseInfixExpressionFn>
@@ -179,6 +182,14 @@ namespace Spelllang.Parser
             var right = ParseExpression(precedence);
 
             return new InfixExpression(left, right, op);
+        }
+
+        private IExpressionNode ParsePrefixExpression()
+        {
+            var op = LexerEnumerator.Current().Value;
+            LexerEnumerator.Next();
+            var expression = ParseExpression(Precedence.PRECEDENCE_PREFIX);
+            return new PrefixExpression(op, expression);
         }
 
         private IExpressionNode ParseAssignExpression(IExpressionNode identifier)

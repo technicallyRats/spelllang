@@ -41,6 +41,23 @@ namespace Spelllang.Interpreter
             }
         }
 
+        public static IRuntimeVariableBase RunPrefixExpression(string op, IRuntimeVariableBase expr)
+        {
+            switch (op)
+            {
+                case "!":
+                    // assumes that this surely will be int
+                    return Invert(expr);
+                case "+":
+                    return RunPlus(expr);
+                case "-":
+                    return RunMinus(expr);
+                default:
+                    Console.WriteLine("Unsupported operator " + op);
+                    return new RuntimeNull();
+            }
+        }
+
         private static IRuntimeVariableBase RunEqual(IRuntimeVariableBase left, IRuntimeVariableBase right)
         {
             if (left.GetType() != right.GetType())
@@ -209,6 +226,32 @@ namespace Spelllang.Interpreter
                 return new RuntimeBoolean(leftBool.GetValue() || rightBool.GetValue());
 
             return new RuntimeBoolean(false);
+        }
+
+        private static IRuntimeVariableBase RunPlus(IRuntimeVariableBase expr)
+        {
+            if (expr is IRuntimeValueBase<int> exprInt)
+                return new RuntimeInt(+exprInt.GetValue());
+            if (expr is IRuntimeValueBase<float> exprFloat)
+                return new RuntimeFloat(+exprFloat.GetValue());
+
+
+            Console.WriteLine("Infix operation '+' not supported for " + expr.GetType().Name);
+
+            return new RuntimeNull();
+        }
+
+        private static IRuntimeVariableBase RunMinus(IRuntimeVariableBase expr)
+        {
+            if (expr is IRuntimeValueBase<int> exprInt)
+                return new RuntimeInt(-exprInt.GetValue());
+            if (expr is IRuntimeValueBase<float> exprFloat)
+                return new RuntimeFloat(-exprFloat.GetValue());
+
+
+            Console.WriteLine("Infix operation '-' not supported for " + expr.GetType().Name);
+
+            return new RuntimeNull();
         }
 
         private static IRuntimeVariableBase Invert(IRuntimeVariableBase value)

@@ -21,9 +21,34 @@ namespace Spelllang.Tests.Parser
             }
         }
 
+        public static IEnumerable SimplePrefixTestCases
+        {
+            get
+            {
+                yield return BuildSimpleIntegerPrefixTestCase("+", Type.PLUS).SetName("Plus prefix");
+                yield return BuildSimpleIntegerPrefixTestCase("-", Type.MINUS).SetName("Plus prefix");
+                yield return new TestCaseData(
+                    new List<Token>
+                    {
+                        new(Type.NOT, "!"),
+                        new(Type.BOOLEAN, "true")
+                    },
+                    new ProgramNode(new List<IStatementNode>
+                        {
+                            new ExpressionStatement(new PrefixExpression(
+                                    "!",
+                                    new BooleanExpression(true)
+                                )
+                            )
+                        }
+                    )
+                ).SetName("Not prefix");
+            }
+        }
+
         [Test]
-        [TestCaseSource(nameof(SimpleInfixTestCases))]
-        public void Parse_SimpleInfix(List<Token> input, ProgramNode expected)
+        [TestCaseSource(nameof(SimplePrefixTestCases))]
+        public void Parse_PrefixInfix(List<Token> input, ProgramNode expected)
         {
             ParsingTestUtils.AssertAst(ParsingTestUtils.Parse(input), expected);
         }
@@ -43,6 +68,26 @@ namespace Spelllang.Tests.Parser
                                 new IntegerExpression(1),
                                 new IntegerExpression(1),
                                 op
+                            )
+                        )
+                    }
+                )
+            );
+        }
+
+        private static TestCaseData BuildSimpleIntegerPrefixTestCase(string op, Type operatorType)
+        {
+            return new TestCaseData(
+                new List<Token>
+                {
+                    new(operatorType, op),
+                    new(Type.NUMBER, "1")
+                },
+                new ProgramNode(new List<IStatementNode>
+                    {
+                        new ExpressionStatement(new PrefixExpression(
+                                op,
+                                new IntegerExpression(1)
                             )
                         )
                     }

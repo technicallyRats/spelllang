@@ -272,6 +272,38 @@ namespace Spelllang.Tests.Interpreter
             }
         }
 
+        public static IEnumerable SimpleIntegerPrefixTestCases
+        {
+            get
+            {
+                yield return BuildSimpleIntegerPrefixOperatorTestCase("+", Type.PLUS, 3).SetName("Plus prefix");
+                yield return BuildSimpleIntegerPrefixOperatorTestCase("-", Type.MINUS, -3).SetName("Minus prefix");
+            }
+        }
+
+        public static IEnumerable SimpleBooleanPrefixTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(
+                    new List<Token>
+                    {
+                        new(Type.NOT, "!"),
+                        new(Type.BOOLEAN, "true")
+                    },
+                    false
+                ).SetName("Not prefix true");
+                yield return new TestCaseData(
+                    new List<Token>
+                    {
+                        new(Type.NOT, "!"),
+                        new(Type.BOOLEAN, "false")
+                    },
+                    true
+                ).SetName("Not prefix false");
+            }
+        }
+
         [Test]
         [TestCaseSource(nameof(SimpleInfixIntegerTestCases))]
         public void Simple_Infix_Integer_Operators(List<Token> input, int expected)
@@ -297,6 +329,28 @@ namespace Spelllang.Tests.Interpreter
         [Test]
         [TestCaseSource(nameof(SimpleInfixBooleanTestCases))]
         public void Simple_Infix_Boolean_Operators(List<Token> input, bool expected)
+        {
+            var interpreter = InterpreterTestUtils.BuildInterpreter(input);
+
+            var result = interpreter.Run();
+
+            InterpreterTestUtils.AssertRuntimeBoolean(result, expected);
+        }
+
+        [Test]
+        [TestCaseSource(nameof(SimpleIntegerPrefixTestCases))]
+        public void Simple_Integer_Prefix_Operators(List<Token> input, int expected)
+        {
+            var interpreter = InterpreterTestUtils.BuildInterpreter(input);
+
+            var result = interpreter.Run();
+
+            InterpreterTestUtils.AssertRuntimeInt(result, expected);
+        }
+
+        [Test]
+        [TestCaseSource(nameof(SimpleBooleanPrefixTestCases))]
+        public void Simple_Boolean_Prefix_Operators(List<Token> input, bool expected)
         {
             var interpreter = InterpreterTestUtils.BuildInterpreter(input);
 
@@ -350,6 +404,21 @@ namespace Spelllang.Tests.Interpreter
                         new(Type.BOOLEAN, boolA),
                         new(operatorType, op),
                         new(Type.BOOLEAN, boolB)
+                    },
+                    expectedResult
+                );
+            }
+        }
+
+        private static TestCaseData BuildSimpleIntegerPrefixOperatorTestCase(string op, Type operatorType,
+            int expectedResult)
+        {
+            {
+                return new TestCaseData(
+                    new List<Token>
+                    {
+                        new(operatorType, op),
+                        new(Type.NUMBER, "3")
                     },
                     expectedResult
                 );
