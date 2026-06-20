@@ -1,4 +1,5 @@
 using System;
+using Spelllang.AST;
 
 namespace Spelllang.Interpreter
 {
@@ -252,6 +253,14 @@ namespace Spelllang.Interpreter
             Console.WriteLine("Infix operation '-' not supported for " + expr.GetType().Name);
 
             return new RuntimeNull();
+        }
+
+        // TODO: Other things should probably count as truthy as well...
+        // If that is implemented it affects some of the boolean operators, maybe
+        public static bool IsTruthy(IRuntimeVariableBase expr)
+        {
+            if (expr is RuntimeBoolean boolExpr) return boolExpr.GetValue();
+            return false;
         }
 
         private static IRuntimeVariableBase Invert(IRuntimeVariableBase value)

@@ -135,6 +135,7 @@ namespace Spelllang.Parser
             {
                 Type.RETURN => ParseReturnStatement(),
                 Type.FUNCTION => ParseFunctionStatement(),
+                Type.IF => ParseIfStatement(),
                 _ => new ExpressionStatement(ParseExpression(Precedence.PRECEDENCE_LOWEST))
             };
 
@@ -293,6 +294,27 @@ namespace Spelllang.Parser
             if (CurrentItemTypeEquals(Type.BRACES_RIGHT) || CurrentItemTypeEquals(Type.SEMICOLON))
                 return new ReturnStatement(new NullExpression());
             return new ReturnStatement(ParseExpression(Precedence.PRECEDENCE_LOWEST));
+        }
+
+        private IStatementNode ParseIfStatement()
+        {
+            LexerEnumerator.Next();
+            LexerEnumerator.Next();
+            var condition = ParseExpression(Precedence.PRECEDENCE_LOWEST);
+            // skip )
+            LexerEnumerator.Next();
+            // skip {
+            LexerEnumerator.Next();
+            var primary = ParseBlock();
+            var secondary = new ProgramNode();
+            LexerEnumerator.Next();
+            if (CurrentItemTypeEquals(Type.ELSE))
+            {
+                LexerEnumerator.Next();
+                secondary = ParseBlock();
+            }
+
+            return new IfStatement(primary, secondary, condition);
         }
 
         // TODO: This is clever and dumb...clever because it works, dumb because this has to jump through extra hoops due to my poorly designed API

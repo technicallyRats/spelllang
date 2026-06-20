@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Spelllang.AST;
 using Spelllang.Lexer;
+using Type = Spelllang.Lexer.Type;
 
 namespace Spelllang.Tests.Parser
 {
@@ -69,9 +71,109 @@ namespace Spelllang.Tests.Parser
             }
         }
 
+        public static IEnumerable IfTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(
+                    new List<Token>
+                    {
+                        new(Type.IF, "if"),
+                        new(Type.PARENTHESES_LEFT, "("),
+                        new(Type.IDENTIFIER, "myBool"),
+                        new(Type.PARENTHESES_RIGHT, ")"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "1"),
+                        new(Type.BRACES_RIGHT, "}")
+                    },
+                    new ProgramNode(new List<IStatementNode>
+                    {
+                        new IfStatement(
+                            new ProgramNode(new List<IStatementNode>
+                                { new ExpressionStatement(new IntegerExpression(1)) }),
+                            new ProgramNode(),
+                            new IdentifierExpression("myBool")
+                        )
+                    })
+                ).SetName("Simple If");
+                yield return new TestCaseData(
+                    new List<Token>
+                    {
+                        new(Type.IF, "if"),
+                        new(Type.PARENTHESES_LEFT, "("),
+                        new(Type.IDENTIFIER, "myBool"),
+                        new(Type.PARENTHESES_RIGHT, ")"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "1"),
+                        new(Type.BRACES_RIGHT, "}"),
+                        new(Type.ELSE, "else"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "2"),
+                        new(Type.BRACES_RIGHT, "}")
+                    },
+                    new ProgramNode(new List<IStatementNode>
+                    {
+                        new IfStatement(
+                            new ProgramNode(new List<IStatementNode>
+                                { new ExpressionStatement(new IntegerExpression(1)) }),
+                            new ProgramNode(new List<IStatementNode>
+                                { new ExpressionStatement(new IntegerExpression(2)) }),
+                            new IdentifierExpression("myBool")
+                        )
+                    })
+                ).SetName("Simple If Else");
+                yield return new TestCaseData(
+                    new List<Token>
+                    {
+                        new(Type.IF, "if"),
+                        new(Type.PARENTHESES_LEFT, "("),
+                        new(Type.IDENTIFIER, "myBool"),
+                        new(Type.PARENTHESES_RIGHT, ")"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "1"),
+                        new(Type.BRACES_RIGHT, "}"),
+                        new(Type.ELSE, "else"),
+                        new(Type.IF, "if"),
+                        new(Type.PARENTHESES_LEFT, "("),
+                        new(Type.IDENTIFIER, "myBool2"),
+                        new(Type.PARENTHESES_RIGHT, ")"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "2"),
+                        new(Type.BRACES_RIGHT, "}")
+                    },
+                    new ProgramNode(new List<IStatementNode>
+                    {
+                        new IfStatement(
+                            new ProgramNode(new List<IStatementNode>
+                                { new ExpressionStatement(new IntegerExpression(1)) }),
+                            new ProgramNode(new List<IStatementNode>
+                            {
+                                new IfStatement(
+                                    new ProgramNode(new List<IStatementNode>
+                                    {
+                                        new ExpressionStatement(new IntegerExpression(2))
+                                    }),
+                                    new ProgramNode(),
+                                    new IdentifierExpression("myBool2")
+                                )
+                            }),
+                            new IdentifierExpression("myBool")
+                        )
+                    })
+                ).SetName("If Else If");
+            }
+        }
+
         [Test]
         [TestCaseSource(nameof(CallTestCases))]
         public void Parse_FunctionCall(List<Token> input, ProgramNode expected)
+        {
+            ParsingTestUtils.AssertAst(ParsingTestUtils.Parse(input), expected);
+        }
+
+        [Test]
+        [TestCaseSource(nameof(IfTestCases))]
+        public void Parse_If(List<Token> input, ProgramNode expected)
         {
             ParsingTestUtils.AssertAst(ParsingTestUtils.Parse(input), expected);
         }

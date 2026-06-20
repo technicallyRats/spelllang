@@ -71,6 +71,13 @@ namespace Spelllang.Interpreter
                                 .ToList());
                     if (!functionStatement.isAnonymous()) _Context.Register(functionStatement.FunctionName, function);
                     return function;
+                case IfStatement ifStatement:
+                    var test = RunExpression(ifStatement.Condition, _Context);
+                    if (Operations.IsTruthy(RunExpression(ifStatement.Condition, _Context)))
+                        return RunProgram(ifStatement.Primary, _Context);
+                    if (ifStatement.HasSecondary())
+                        return RunProgram(ifStatement.Secondary, _Context);
+                    return new RuntimeNull();
                 case ReturnStatement returnStatement:
                     return RunExpression(returnStatement.ReturnValue, _Context);
                 case IExpressionNode expressionNode:

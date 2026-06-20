@@ -36,8 +36,15 @@ namespace Spelllang.AST
             var sb = new StringBuilder("Statements:", 64);
             sb.AppendLine();
             var counter = 1;
-            Statements.ForEach(element => { sb.AppendLine(counter++ + ".\t" + element.ToReadableString()); });
+            if (Statements != null)
+                Statements.ForEach(element => { sb.AppendLine(counter++ + ".\t" + element.ToReadableString()); });
             return sb.ToString();
+        }
+
+        public bool IsEmpty()
+        {
+            if (Statements == null) return true;
+            return Statements.Count == 0;
         }
     }
 
@@ -95,6 +102,31 @@ namespace Spelllang.AST
         public string ToReadableString()
         {
             return $"Returning {ReturnValue.ToReadableString()}";
+        }
+    }
+
+    public struct IfStatement : IStatementNode
+    {
+        public ProgramNode Primary;
+        public ProgramNode Secondary;
+        public IExpressionNode Condition;
+
+        public IfStatement(ProgramNode primary, ProgramNode secondary, IExpressionNode condition)
+        {
+            Primary = primary;
+            Secondary = secondary;
+            Condition = condition;
+        }
+
+        public string ToReadableString()
+        {
+            return
+                $"If statement with condition {Condition.ToReadableString()}\nPrimary: {Primary.ToReadableString()}\nSecondary: {Secondary.ToReadableString()}";
+        }
+
+        public bool HasSecondary()
+        {
+            return !Secondary.IsEmpty();
         }
     }
 

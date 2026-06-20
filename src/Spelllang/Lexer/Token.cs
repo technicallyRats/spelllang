@@ -36,6 +36,9 @@ namespace Spelllang.Lexer
         AND,
         OR,
 
+        IF,
+        ELSE,
+
         UNKNOWN
     }
 
@@ -47,7 +50,9 @@ namespace Spelllang.Lexer
             { "false", Type.BOOLEAN },
             { "function", Type.FUNCTION },
             { "return", Type.RETURN },
-            { "null", Type.NULL }
+            { "null", Type.NULL },
+            { "if", Type.IF },
+            { "else", Type.ELSE }
         };
 
         public static Type GetValueOrDefault(string keyword, Type fallback)

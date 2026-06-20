@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Security.Claims;
 using Spelllang.Lexer;
@@ -69,6 +70,96 @@ namespace Spelllang.Tests.Lexer
             var expected = new List<Token>();
             for (var i = 0; i < tokenArgs.Length; i += 2)
                 expected.Add(new Token((Type)tokenArgs[i], (string)tokenArgs[i + 1]));
+            AssertTokenList(Lex(input), expected);
+        }
+
+        public static IEnumerable IfTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(
+                    "if (myBool)\n{1\n}",
+                    new List<Token>
+                    {
+                        new(Type.IF, "if"),
+                        new(Type.PARENTHESES_LEFT, "("),
+                        new(Type.IDENTIFIER, "myBool"),
+                        new(Type.PARENTHESES_RIGHT, ")"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "1"),
+                        new(Type.BRACES_RIGHT, "}")
+                    }
+                ).SetName("Simple If");
+                yield return new TestCaseData(
+                    "if (myBool){\n1\n} else\n{\n2\n}",
+                    new List<Token>
+                    {
+                        new(Type.IF, "if"),
+                        new(Type.PARENTHESES_LEFT, "("),
+                        new(Type.IDENTIFIER, "myBool"),
+                        new(Type.PARENTHESES_RIGHT, ")"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "1"),
+                        new(Type.BRACES_RIGHT, "}"),
+                        new(Type.ELSE, "else"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "2"),
+                        new(Type.BRACES_RIGHT, "}")
+                    }
+                ).SetName("Simple If Else");
+                yield return new TestCaseData(
+                    "if (myBool){\n1\n} else if (myBool2)\n{\n2\n}",
+                    new List<Token>
+                    {
+                        new(Type.IF, "if"),
+                        new(Type.PARENTHESES_LEFT, "("),
+                        new(Type.IDENTIFIER, "myBool"),
+                        new(Type.PARENTHESES_RIGHT, ")"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "1"),
+                        new(Type.BRACES_RIGHT, "}"),
+                        new(Type.ELSE, "else"),
+                        new(Type.IF, "if"),
+                        new(Type.PARENTHESES_LEFT, "("),
+                        new(Type.IDENTIFIER, "myBool2"),
+                        new(Type.PARENTHESES_RIGHT, ")"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "2"),
+                        new(Type.BRACES_RIGHT, "}")
+                    }
+                ).SetName("Simple If Else If");
+                yield return new TestCaseData(
+                    "if (myBool){\n1\n} else if (myBool2)\n{\n2\n}else{\n3\n}",
+                    new List<Token>
+                    {
+                        new(Type.IF, "if"),
+                        new(Type.PARENTHESES_LEFT, "("),
+                        new(Type.IDENTIFIER, "myBool"),
+                        new(Type.PARENTHESES_RIGHT, ")"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "1"),
+                        new(Type.BRACES_RIGHT, "}"),
+                        new(Type.ELSE, "else"),
+                        new(Type.IF, "if"),
+                        new(Type.PARENTHESES_LEFT, "("),
+                        new(Type.IDENTIFIER, "myBool2"),
+                        new(Type.PARENTHESES_RIGHT, ")"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "2"),
+                        new(Type.BRACES_RIGHT, "}"),
+                        new(Type.ELSE, "else"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "3"),
+                        new(Type.BRACES_RIGHT, "}")
+                    }
+                ).SetName("Simple If Else If Else");
+            }
+        }
+
+        [Test]
+        [TestCaseSource(nameof(IfTestCases))]
+        public void Lex_If(string input, List<Token> expected)
+        {
             AssertTokenList(Lex(input), expected);
         }
 

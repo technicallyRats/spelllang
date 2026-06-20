@@ -1,6 +1,8 @@
+using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
+using Spelllang.AST;
 using Spelllang.Lexer;
 
 namespace Spelllang.Tests.Interpreter
@@ -297,6 +299,87 @@ namespace Spelllang.Tests.Interpreter
             var result = interpreter.Run();
 
             InterpreterTestUtils.AssertRuntimeInt(result, 1000000);
+        }
+
+        public static IEnumerable IfTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(
+                    new List<Token>
+                    {
+                        new(Type.IDENTIFIER, "myBool"),
+                        new(Type.ASSIGN, "="),
+                        new(Type.BOOLEAN, "true"),
+                        new(Type.IF, "if"),
+                        new(Type.PARENTHESES_LEFT, "("),
+                        new(Type.IDENTIFIER, "myBool"),
+                        new(Type.PARENTHESES_RIGHT, ")"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "1"),
+                        new(Type.BRACES_RIGHT, "}")
+                    },
+                    1
+                ).SetName("Simple If");
+                yield return new TestCaseData(
+                    new List<Token>
+                    {
+                        new(Type.IDENTIFIER, "myBool"),
+                        new(Type.ASSIGN, "="),
+                        new(Type.BOOLEAN, "false"),
+                        new(Type.IF, "if"),
+                        new(Type.PARENTHESES_LEFT, "("),
+                        new(Type.IDENTIFIER, "myBool"),
+                        new(Type.PARENTHESES_RIGHT, ")"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "1"),
+                        new(Type.BRACES_RIGHT, "}"),
+                        new(Type.ELSE, "else"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "2"),
+                        new(Type.BRACES_RIGHT, "}")
+                    },
+                    2
+                ).SetName("Simple If Else");
+                yield return new TestCaseData(
+                    new List<Token>
+                    {
+                        new(Type.IDENTIFIER, "myBool"),
+                        new(Type.ASSIGN, "="),
+                        new(Type.BOOLEAN, "false"),
+                        new(Type.IDENTIFIER, "myBool2"),
+                        new(Type.ASSIGN, "="),
+                        new(Type.BOOLEAN, "true"),
+                        new(Type.IF, "if"),
+                        new(Type.PARENTHESES_LEFT, "("),
+                        new(Type.IDENTIFIER, "myBool"),
+                        new(Type.PARENTHESES_RIGHT, ")"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "1"),
+                        new(Type.BRACES_RIGHT, "}"),
+                        new(Type.ELSE, "else"),
+                        new(Type.IF, "if"),
+                        new(Type.PARENTHESES_LEFT, "("),
+                        new(Type.IDENTIFIER, "myBool2"),
+                        new(Type.PARENTHESES_RIGHT, ")"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "2"),
+                        new(Type.BRACES_RIGHT, "}")
+                    },
+                    2
+                ).SetName("If Else If");
+            }
+        }
+
+        [Test]
+        [TestCaseSource(nameof(IfTestCases))]
+        public void Interpret_If(List<Token> input, int expected)
+        {
+            var interpreter = InterpreterTestUtils.BuildInterpreter(input);
+
+            var result = interpreter.Run();
+
+            InterpreterTestUtils.AssertRuntimeInt(result, expected);
         }
     }
 }
