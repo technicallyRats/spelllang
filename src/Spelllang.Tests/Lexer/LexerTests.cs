@@ -183,6 +183,47 @@ namespace Spelllang.Tests.Lexer
             AssertTokenList(Lex(input), expected);
         }
 
+        public static IEnumerable WhileTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(
+                    "while (myBool)\n{1\n}",
+                    new List<Token>
+                    {
+                        new(Type.WHILE, "while"),
+                        new(Type.PARENTHESES_LEFT, "("),
+                        new(Type.IDENTIFIER, "myBool"),
+                        new(Type.PARENTHESES_RIGHT, ")"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "1"),
+                        new(Type.BRACES_RIGHT, "}")
+                    }
+                ).SetName("Simple while");
+                yield return new TestCaseData(
+                    "while (myBool)\n{1\nbreak\n}",
+                    new List<Token>
+                    {
+                        new(Type.WHILE, "while"),
+                        new(Type.PARENTHESES_LEFT, "("),
+                        new(Type.IDENTIFIER, "myBool"),
+                        new(Type.PARENTHESES_RIGHT, ")"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "1"),
+                        new(Type.BREAK, "break"),
+                        new(Type.BRACES_RIGHT, "}")
+                    }
+                ).SetName("Simple while with break");
+            }
+        }
+
+        [Test]
+        [TestCaseSource(nameof(WhileTestCases))]
+        public void Lex_While(string input, List<Token> expected)
+        {
+            AssertTokenList(Lex(input), expected);
+        }
+
         [Test]
         public void Lex_FunctionCall()
         {

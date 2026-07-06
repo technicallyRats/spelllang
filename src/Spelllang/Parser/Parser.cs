@@ -136,6 +136,8 @@ namespace Spelllang.Parser
                 Type.RETURN => ParseReturnStatement(),
                 Type.FUNCTION => ParseFunctionStatement(),
                 Type.IF => ParseIfStatement(),
+                Type.WHILE => ParseWhileStatement(),
+                Type.BREAK => ParseBreakStatement(),
                 _ => new ExpressionStatement(ParseExpression(Precedence.PRECEDENCE_LOWEST))
             };
 
@@ -315,6 +317,25 @@ namespace Spelllang.Parser
             }
 
             return new IfStatement(primary, secondary, condition);
+        }
+
+        private IStatementNode ParseWhileStatement()
+        {
+            LexerEnumerator.Next();
+            LexerEnumerator.Next();
+            var condition = ParseExpression(Precedence.PRECEDENCE_LOWEST);
+            // skip )
+            LexerEnumerator.Next();
+            // skip {
+            LexerEnumerator.Next();
+            var body = ParseBlock();
+            // TODO: This does not match if...why?
+            return new WhileStatement(body, condition);
+        }
+
+        private IStatementNode ParseBreakStatement()
+        {
+            return new BreakStatement();
         }
 
         // TODO: This is clever and dumb...clever because it works, dumb because this has to jump through extra hoops due to my poorly designed API

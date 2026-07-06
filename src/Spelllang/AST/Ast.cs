@@ -130,6 +130,32 @@ namespace Spelllang.AST
         }
     }
 
+    public struct WhileStatement : IStatementNode
+    {
+        public ProgramNode Body;
+        public IExpressionNode Condition;
+
+        public WhileStatement(ProgramNode body, IExpressionNode condition)
+        {
+            Body = body;
+            Condition = condition;
+        }
+
+        public string ToReadableString()
+        {
+            return
+                $"While statement with condition {Condition.ToReadableString()}\nBody: {Body.ToReadableString()}";
+        }
+    }
+
+    public struct BreakStatement : IStatementNode
+    {
+        public string ToReadableString()
+        {
+            return $"Break!";
+        }
+    }
+
     public struct PrefixExpression : IExpressionNode
     {
         public string Operator { get; }

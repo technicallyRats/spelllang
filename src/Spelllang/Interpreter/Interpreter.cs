@@ -30,12 +30,12 @@ namespace Spelllang.Interpreter
 
         public IRuntimeVariableBase Run()
         {
-            return RunProgram(RootNode, new Context(null, Builtins));
+            return RunProgram(RootNode, new Context(null, Builtins)).result;
         }
 
-        private IRuntimeVariableBase RunProgram(ProgramNode program, Context _Context)
+        private (IRuntimeVariableBase result, bool earlyExit) RunProgram(ProgramNode program, Context _Context)
         {
-            IRuntimeVariableBase result = null;
+            IRuntimeVariableBase result = new RuntimeNull();
             foreach (var statement in program.Statements)
             {
                 // would just clutter the return stack
@@ -44,14 +44,15 @@ namespace Spelllang.Interpreter
                         continue;
 
                 result = RunNode(statement, _Context);
+                if (statement is ReturnStatement or BreakStatement) return (result, true);
             }
 
-            return result;
+            return (result, false);
         }
 
         private IRuntimeVariableBase RunNode(IAstNode node, Context _Context)
         {
-            if (node is ProgramNode programNode) return RunProgram(programNode, _Context);
+            if (node is ProgramNode programNode) return RunProgram(programNode, _Context).result;
 
             if (node is IStatementNode statementNode) return RunStatement(statementNode, _Context);
             Console.WriteLine("Error occured: Could not run node of type " + node);
@@ -74,12 +75,19 @@ namespace Spelllang.Interpreter
                 case IfStatement ifStatement:
                     var test = RunExpression(ifStatement.Condition, _Context);
                     if (Operations.IsTruthy(RunExpression(ifStatement.Condition, _Context)))
-                        return RunProgram(ifStatement.Primary, _Context);
+                        return RunProgram(ifStatement.Primary, _Context).result;
                     if (ifStatement.HasSecondary())
-                        return RunProgram(ifStatement.Secondary, _Context);
+                        return RunProgram(ifStatement.Secondary, _Context).result;
                     return new RuntimeNull();
+                case WhileStatement whileStatement:
+                    (IRuntimeVariableBase result, bool earlyExit) result = (new RuntimeNull(), false);
+                    while (Operations.IsTruthy(RunExpression(whileStatement.Condition, _Context)) && !result.earlyExit)
+                        result = RunProgram(whileStatement.Body, _Context);
+                    return result.result;
                 case ReturnStatement returnStatement:
                     return RunExpression(returnStatement.ReturnValue, _Context);
+                case BreakStatement:
+                    return new RuntimeNull();
                 case IExpressionNode expressionNode:
                     return RunExpression(expressionNode, _Context);
                 default:
@@ -138,7 +146,7 @@ namespace Spelllang.Interpreter
             for (var i = 0; i < Math.Max(callNode.Arguments.Count, program.GetArgumentNames().Count); i++)
                 // This will fail if there is an argument mismatch. Good.
                 callContext.Register(program.GetArgumentNames()[i], RunExpression(callNode.Arguments[i], _Context));
-            return RunProgram(program.GetValue(), callContext);
+            return RunProgram(program.GetValue(), callContext).result;
         }
 
         private IRuntimeVariableBase RunBuiltin(IRuntimeBuiltin builtin, CallExpression callNode, Context _Context)

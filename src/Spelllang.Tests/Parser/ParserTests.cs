@@ -164,8 +164,59 @@ namespace Spelllang.Tests.Parser
             }
         }
 
+        public static IEnumerable WhileTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(
+                    new List<Token>
+                    {
+                        new(Type.WHILE, "while"),
+                        new(Type.PARENTHESES_LEFT, "("),
+                        new(Type.IDENTIFIER, "myBool"),
+                        new(Type.PARENTHESES_RIGHT, ")"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "1"),
+                        new(Type.BRACES_RIGHT, "}")
+                    },
+                    new ProgramNode(new List<IStatementNode>
+                    {
+                        new WhileStatement(
+                            new ProgramNode(new List<IStatementNode>
+                                { new ExpressionStatement(new IntegerExpression(1)) }),
+                            new IdentifierExpression("myBool")
+                        )
+                    })
+                ).SetName("Simple While");
+                yield return new TestCaseData(
+                    new List<Token>
+                    {
+                        new(Type.WHILE, "while"),
+                        new(Type.PARENTHESES_LEFT, "("),
+                        new(Type.IDENTIFIER, "myBool"),
+                        new(Type.PARENTHESES_RIGHT, ")"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.NUMBER, "1"),
+                        new(Type.BREAK, "break"),
+                        new(Type.BRACES_RIGHT, "}")
+                    },
+                    new ProgramNode(new List<IStatementNode>
+                    {
+                        new WhileStatement(
+                            new ProgramNode(new List<IStatementNode>
+                            {
+                                new ExpressionStatement(new IntegerExpression(1)),
+                                new BreakStatement()
+                            }),
+                            new IdentifierExpression("myBool")
+                        )
+                    })
+                ).SetName("Simple While with break");
+            }
+        }
+
         [Test]
-        [TestCaseSource(nameof(CallTestCases))]
+        [TestCaseSource(nameof(WhileTestCases))]
         public void Parse_FunctionCall(List<Token> input, ProgramNode expected)
         {
             ParsingTestUtils.AssertAst(ParsingTestUtils.Parse(input), expected);

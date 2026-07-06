@@ -1,0 +1,19 @@
+myNumber = 1;
+
+function isOdd(num){
+    return num % 2 == 0;
+}
+
+if (isOdd(myNumber)){
+    PRINT('Odd');
+} else {
+    PRINT('Not odd');
+}
+
+while (myNumber < 100){
+    myNumber = myNumber + 1;
+    break;
+}
+
+PRINT('HERE');
+myNumber;

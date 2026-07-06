@@ -7,22 +7,12 @@ public class Program
 {
     private static void Main(string[] args)
     {
-        var l = new Lexer(@"
-    1 + 1;
-    'ABC';
-    'DEF';
-    '';
-    PRINT('1', ' + ', 2);
-    B='DEF';
-    true;
-    false;
-    A=B;
-    A==B;
-    3.41;
-    1_000;
-    1==1;
-    PRINT();
-    ");
+        var filename = "./sample.spell";
+        if (args.Length > 0) filename = args[0];
+
+        Console.WriteLine("Reading file: " + filename);
+        var file = new System.IO.StreamReader(filename);
+        var l = new Lexer(file.ReadToEnd());
 
         var enumerator = l.GetEnumerator();
         Console.WriteLine("-- Tokens --");

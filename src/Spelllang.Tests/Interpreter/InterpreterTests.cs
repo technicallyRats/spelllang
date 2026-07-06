@@ -381,5 +381,69 @@ namespace Spelllang.Tests.Interpreter
 
             InterpreterTestUtils.AssertRuntimeInt(result, expected);
         }
+
+        public static IEnumerable WhileTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(
+                    new List<Token>
+                    {
+                        new(Type.IDENTIFIER, "myInt"),
+                        new(Type.ASSIGN, "="),
+                        new(Type.NUMBER, "1"),
+                        new(Type.WHILE, "while"),
+                        new(Type.PARENTHESES_LEFT, "("),
+                        new(Type.IDENTIFIER, "myInt"),
+                        new(Type.LT, "<"),
+                        new(Type.NUMBER, "100"),
+                        new(Type.PARENTHESES_RIGHT, ")"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.IDENTIFIER, "myInt"),
+                        new(Type.ASSIGN, "="),
+                        new(Type.IDENTIFIER, "myInt"),
+                        new(Type.PLUS, "+"),
+                        new(Type.NUMBER, "1"),
+                        new(Type.BRACES_RIGHT, "}")
+                    },
+                    100
+                ).SetName("Simple while");
+                yield return new TestCaseData(
+                    new List<Token>
+                    {
+                        new(Type.IDENTIFIER, "myInt"),
+                        new(Type.ASSIGN, "="),
+                        new(Type.NUMBER, "1"),
+                        new(Type.WHILE, "while"),
+                        new(Type.PARENTHESES_LEFT, "("),
+                        new(Type.IDENTIFIER, "myInt"),
+                        new(Type.LT, "<"),
+                        new(Type.NUMBER, "100"),
+                        new(Type.PARENTHESES_RIGHT, ")"),
+                        new(Type.BRACES_LEFT, "{"),
+                        new(Type.IDENTIFIER, "myInt"),
+                        new(Type.ASSIGN, "="),
+                        new(Type.IDENTIFIER, "myInt"),
+                        new(Type.PLUS, "+"),
+                        new(Type.NUMBER, "1"),
+                        new(Type.BREAK, "break"),
+                        new(Type.BRACES_RIGHT, "}"),
+                        new(Type.IDENTIFIER, "myInt")
+                    },
+                    2
+                ).SetName("Simple while with break");
+            }
+        }
+
+        [Test]
+        [TestCaseSource(nameof(WhileTestCases))]
+        public void Interpret_While(List<Token> input, int expected)
+        {
+            var interpreter = InterpreterTestUtils.BuildInterpreter(input);
+
+            var result = interpreter.Run();
+
+            InterpreterTestUtils.AssertRuntimeInt(result, expected);
+        }
     }
 }

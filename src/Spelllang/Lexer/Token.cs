@@ -39,6 +39,9 @@ namespace Spelllang.Lexer
         IF,
         ELSE,
 
+        WHILE,
+        BREAK,
+
         UNKNOWN
     }
 
@@ -52,7 +55,9 @@ namespace Spelllang.Lexer
             { "return", Type.RETURN },
             { "null", Type.NULL },
             { "if", Type.IF },
-            { "else", Type.ELSE }
+            { "else", Type.ELSE },
+            { "while", Type.WHILE },
+            { "break", Type.BREAK }
         };
 
         public static Type GetValueOrDefault(string keyword, Type fallback)
