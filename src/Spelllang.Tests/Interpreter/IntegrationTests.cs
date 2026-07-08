@@ -51,7 +51,7 @@ namespace Spelllang.Tests.Interpreter
                 "PRINT('hello from integration')",
                 new List<(string name, Spelllang.Builtins.IRuntimeBuiltin value)>
                 {
-                    ("PRINT", new Spelllang.Builtins.PrintBuiltin())
+                    ("PRINT", new Spelllang.Sample.PrintTestBuiltin())
                 }
             );
 
@@ -66,7 +66,7 @@ namespace Spelllang.Tests.Interpreter
                 "X = 'hello'; PRINT(X)",
                 new List<(string name, Spelllang.Builtins.IRuntimeBuiltin value)>
                 {
-                    ("PRINT", new Spelllang.Builtins.PrintBuiltin())
+                    ("PRINT", new Spelllang.Sample.PrintTestBuiltin())
                 }
             );
 

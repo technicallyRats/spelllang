@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Spelllang.AST;
 using Spelllang.Builtins;
+using Spelllang.Diagnostics;
 
 namespace Spelllang.Interpreter
 {
@@ -55,7 +56,7 @@ namespace Spelllang.Interpreter
             if (node is ProgramNode programNode) return RunProgram(programNode, _Context).result;
 
             if (node is IStatementNode statementNode) return RunStatement(statementNode, _Context);
-            Console.WriteLine("Error occured: Could not run node of type " + node);
+            SpelllangDiagnostics.Error("Error occured: Could not run node of type " + node);
             return new RuntimeNull();
         }
 
@@ -91,7 +92,7 @@ namespace Spelllang.Interpreter
                 case IExpressionNode expressionNode:
                     return RunExpression(expressionNode, _Context);
                 default:
-                    Console.WriteLine("Unknown statement type " + statement);
+                    SpelllangDiagnostics.Error("Unknown statement type " + statement);
                     return null;
             }
         }
@@ -108,7 +109,7 @@ namespace Spelllang.Interpreter
                     var node = RunExpression(callNode.Identifier, _Context);
                     if (node == null)
                     {
-                        Console.WriteLine("Undefined function: " + callNode.Identifier.ToReadableString());
+                        SpelllangDiagnostics.Error("Undefined function: " + callNode.Identifier.ToReadableString());
                         return new RuntimeNull();
                     }
 
@@ -117,7 +118,7 @@ namespace Spelllang.Interpreter
                         case RuntimeFunction fnNode: return RunFunction(fnNode, callNode, _Context);
                         case IRuntimeBuiltin builtinNode: return RunBuiltin(builtinNode, callNode, _Context);
                         default:
-                            Console.WriteLine("Unexpected resolution for function call: " + node.ToReadableString());
+                            SpelllangDiagnostics.Error("Unexpected resolution for function call: " + node.ToReadableString());
                             return new RuntimeNull();
                     }
                 case InfixExpression infixNode:
@@ -134,7 +135,7 @@ namespace Spelllang.Interpreter
                 case IdentifierExpression identifierExpression:
                     return _Context.Retrieve(identifierExpression.IdentifierName);
                 default:
-                    Console.WriteLine("Unknown expression type " + expression);
+                    SpelllangDiagnostics.Error("Unknown expression type " + expression);
                     return null;
             }
         }

@@ -27,7 +27,7 @@ public class Program
         var root = p.GetRootProgram();
 
         var builtins = new List<(string name, Spelllang.Builtins.IRuntimeBuiltin value)>();
-        builtins.Add(("PRINT", new Spelllang.Builtins.PrintBuiltin()));
+        builtins.Add(("PRINT", new Spelllang.Sample.PrintBuiltin()));
 
         Console.WriteLine("-- AST --");
         Console.WriteLine(root.ToReadableString());

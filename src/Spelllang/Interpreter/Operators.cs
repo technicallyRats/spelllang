@@ -1,5 +1,6 @@
 using System;
 using Spelllang.AST;
+using Spelllang.Diagnostics;
 
 namespace Spelllang.Interpreter
 {
@@ -37,7 +38,7 @@ namespace Spelllang.Interpreter
                 case "&&":
                     return RunAnd(left, right);
                 default:
-                    Console.WriteLine("Unsupported operator " + op);
+                    SpelllangDiagnostics.Error("Unsupported operator " + op);
                     return new RuntimeNull();
             }
         }
@@ -54,7 +55,7 @@ namespace Spelllang.Interpreter
                 case "-":
                     return RunMinus(expr);
                 default:
-                    Console.WriteLine("Unsupported operator " + op);
+                    SpelllangDiagnostics.Error("Unsupported operator " + op);
                     return new RuntimeNull();
             }
         }
@@ -63,7 +64,7 @@ namespace Spelllang.Interpreter
         {
             if (left.GetType() != right.GetType())
             {
-                Console.WriteLine("For now only comparison between two variables of the same type are supported");
+                SpelllangDiagnostics.Error("For now only comparison between two variables of the same type are supported");
                 return new RuntimeNull();
             }
 
@@ -86,7 +87,7 @@ namespace Spelllang.Interpreter
         {
             if (left.GetType() != right.GetType())
             {
-                Console.WriteLine("For now only addition between two variables of the same type is supported");
+                SpelllangDiagnostics.Error("For now only addition between two variables of the same type is supported");
                 return new RuntimeNull();
             }
 
@@ -103,7 +104,7 @@ namespace Spelllang.Interpreter
         {
             if (left.GetType() != right.GetType())
             {
-                Console.WriteLine("For now only comparison between two variables of the same type are supported");
+                SpelllangDiagnostics.Error("For now only comparison between two variables of the same type are supported");
                 return new RuntimeNull();
             }
 
@@ -120,7 +121,7 @@ namespace Spelllang.Interpreter
         {
             if (left.GetType() != right.GetType())
             {
-                Console.WriteLine("For now only multiplication between two variables of the same type is supported");
+                SpelllangDiagnostics.Error("For now only multiplication between two variables of the same type is supported");
                 return new RuntimeNull();
             }
 
@@ -137,7 +138,7 @@ namespace Spelllang.Interpreter
         {
             if (left.GetType() != right.GetType())
             {
-                Console.WriteLine("For now only division between two variables of the same type is supported");
+                SpelllangDiagnostics.Error("For now only division between two variables of the same type is supported");
                 return new RuntimeNull();
             }
 
@@ -154,7 +155,7 @@ namespace Spelllang.Interpreter
         {
             if (left.GetType() != right.GetType())
             {
-                Console.WriteLine("For now only modulo between two variables of the same type is supported");
+                SpelllangDiagnostics.Error("For now only modulo between two variables of the same type is supported");
                 return new RuntimeNull();
             }
 
@@ -171,7 +172,7 @@ namespace Spelllang.Interpreter
         {
             if (left.GetType() != right.GetType())
             {
-                Console.WriteLine("For now only comparison between two variables of the same type are supported");
+                SpelllangDiagnostics.Error("For now only comparison between two variables of the same type are supported");
                 return new RuntimeNull();
             }
 
@@ -188,7 +189,7 @@ namespace Spelllang.Interpreter
         {
             if (left.GetType() != right.GetType())
             {
-                Console.WriteLine("For now only comparison between two variables of the same type are supported");
+                SpelllangDiagnostics.Error("For now only comparison between two variables of the same type are supported");
                 return new RuntimeNull();
             }
 
@@ -205,7 +206,7 @@ namespace Spelllang.Interpreter
         {
             if (left.GetType() != right.GetType())
             {
-                Console.WriteLine("For now only comparison between two variables of the same type are supported");
+                SpelllangDiagnostics.Error("For now only comparison between two variables of the same type are supported");
                 return new RuntimeNull();
             }
 
@@ -219,7 +220,7 @@ namespace Spelllang.Interpreter
         {
             if (left.GetType() != right.GetType())
             {
-                Console.WriteLine("For now only comparison between two variables of the same type are supported");
+                SpelllangDiagnostics.Error("For now only comparison between two variables of the same type are supported");
                 return new RuntimeNull();
             }
 
@@ -237,7 +238,7 @@ namespace Spelllang.Interpreter
                 return new RuntimeFloat(+exprFloat.GetValue());
 
 
-            Console.WriteLine("Infix operation '+' not supported for " + expr.GetType().Name);
+            SpelllangDiagnostics.Error("Infix operation '+' not supported for " + expr.GetType().Name);
 
             return new RuntimeNull();
         }
@@ -250,7 +251,7 @@ namespace Spelllang.Interpreter
                 return new RuntimeFloat(-exprFloat.GetValue());
 
 
-            Console.WriteLine("Infix operation '-' not supported for " + expr.GetType().Name);
+            SpelllangDiagnostics.Error("Infix operation '-' not supported for " + expr.GetType().Name);
 
             return new RuntimeNull();
         }

@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Spelllang.Builtins;
 using Spelllang.Interpreter;
 
-namespace Spelllang.Builtins
+namespace Spelllang.Sample
 {
-    public struct PrintBuiltin : IRuntimeBuiltin
+    public struct PrintTestBuiltin : IRuntimeBuiltin
     {
         public bool CheckParamtypes() => false;
 

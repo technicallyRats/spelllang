@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Spelllang.AST;
+using Spelllang.Diagnostics;
 using Spelllang.Lexer;
 using Type = Spelllang.Lexer.Type;
 
@@ -151,8 +152,7 @@ namespace Spelllang.Parser
                 PrefixParserFn.TryGetValue(LexerEnumerator.Current().Type, out var v) ? v : null;
             if (parsePrefixExpressionFn == null)
             {
-                Console.WriteLine("No prefix parser for type " + LexerEnumerator.Current().Type);
-                Environment.Exit(1);
+                SpelllangDiagnostics.Error("No prefix parser for type " + LexerEnumerator.Current().Type);
                 return null;
             }
 
@@ -163,7 +163,7 @@ namespace Spelllang.Parser
                 var infixParser = InfixParserFn.TryGetValue(LexerEnumerator.Peek().Type, out var value) ? value : null;
                 if (infixParser == null)
                 {
-                    Console.WriteLine("No infix parser for type " + LexerEnumerator.Peek().Type);
+                    SpelllangDiagnostics.Error("No infix parser for type " + LexerEnumerator.Peek().Type);
                     return leftExpression;
                 }
 
@@ -203,7 +203,7 @@ namespace Spelllang.Parser
             var value = ParseExpression(precedence);
             if (identifier is IdentifierExpression identifierExpression)
                 return new AssignExpression(identifierExpression.IdentifierName, value);
-            Console.WriteLine("Expected identifier node but got " + identifier);
+            SpelllangDiagnostics.Error("Expected identifier node but got " + identifier);
             return null;
         }
 
@@ -279,7 +279,7 @@ namespace Spelllang.Parser
             var arguments = ParseExpressionList(Type.PARENTHESES_RIGHT);
             if (arguments.Count > 0 && !arguments.All(item => item != null && item is IdentifierExpression))
             {
-                Console.WriteLine("Expected identifiers as arguments but got " + arguments);
+                SpelllangDiagnostics.Error("Expected identifiers as arguments but got " + arguments);
                 return null;
             }
 

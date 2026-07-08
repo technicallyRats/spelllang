@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using Spelllang.Interpreter;
-using Spelllang.Tests.TestBuiltins;
 
 namespace Spelllang.Tests.Interpreter
 {

@@ -3,6 +3,7 @@ using System.IO;
 using NUnit.Framework;
 using Spelllang.Builtins;
 using Spelllang.Interpreter;
+using Spelllang.Sample;
 
 namespace Spelllang.Tests.Builtins
 {
@@ -28,9 +29,9 @@ namespace Spelllang.Tests.Builtins
         }
 
         [Test]
-        public void PrintBuiltin_Call_ReturnsRuntimeNull()
+        public void PrintTestBuiltin_Call_ReturnsRuntimeNull()
         {
-            var builtin = new PrintBuiltin();
+            var builtin = new PrintTestBuiltin();
 
             var result = builtin.Call(new List<IRuntimeVariableBase>());
 
@@ -38,9 +39,9 @@ namespace Spelllang.Tests.Builtins
         }
 
         [Test]
-        public void PrintBuiltin_Call_WithSingleArg_WritesToConsole()
+        public void PrintTestBuiltin_Call_WithSingleArg_WritesToConsole()
         {
-            var builtin = new PrintBuiltin();
+            var builtin = new PrintTestBuiltin();
 
             builtin.Call(new List<IRuntimeVariableBase>
             {
@@ -51,9 +52,9 @@ namespace Spelllang.Tests.Builtins
         }
 
         [Test]
-        public void PrintBuiltin_Call_WithMultipleArgs_WritesConcatenatedToConsole()
+        public void PrintTestBuiltin_Call_WithMultipleArgs_WritesConcatenatedToConsole()
         {
-            var builtin = new PrintBuiltin();
+            var builtin = new PrintTestBuiltin();
 
             builtin.Call(new List<IRuntimeVariableBase>
             {
@@ -66,9 +67,9 @@ namespace Spelllang.Tests.Builtins
         }
 
         [Test]
-        public void PrintBuiltin_Call_WithNoArgs_WritesEmptyLine()
+        public void PrintTestBuiltin_Call_WithNoArgs_WritesEmptyLine()
         {
-            var builtin = new PrintBuiltin();
+            var builtin = new PrintTestBuiltin();
 
             builtin.Call(new List<IRuntimeVariableBase>());
 
@@ -76,9 +77,9 @@ namespace Spelllang.Tests.Builtins
         }
 
         [Test]
-        public void PrintBuiltin_Call_WithMixedTypes_ConcatenatesStrings()
+        public void PrintTestBuiltin_Call_WithMixedTypes_ConcatenatesStrings()
         {
-            var builtin = new PrintBuiltin();
+            var builtin = new PrintTestBuiltin();
 
             builtin.Call(new List<IRuntimeVariableBase>
             {
@@ -91,9 +92,9 @@ namespace Spelllang.Tests.Builtins
         }
 
         [Test]
-        public void PrintBuiltin_CheckParamtypes_ReturnsFalse()
+        public void PrintTestBuiltin_CheckParamtypes_ReturnsFalse()
         {
-            var builtin = new PrintBuiltin();
+            var builtin = new PrintTestBuiltin();
 
             Assert.That(builtin.CheckParamtypes(), Is.False);
         }
@@ -101,7 +102,7 @@ namespace Spelllang.Tests.Builtins
         [Test]
         public void BridgeValidator_NoCheck_AlwaysPasses()
         {
-            var builtin = new PrintBuiltin();
+            var builtin = new PrintTestBuiltin();
 
             var result = BridgeValidator.ParamsMatchExpectedTypes(
                 builtin,
