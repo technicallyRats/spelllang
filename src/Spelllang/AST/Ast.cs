@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Text;
+using Spelllang.AST;
 
 namespace Spelllang.AST
 {
@@ -152,216 +153,236 @@ namespace Spelllang.AST
     {
         public string ToReadableString()
         {
-            return $"Break!";
+            return "Break!";
         }
     }
 
-    public struct PrefixExpression : IExpressionNode
+    public struct ImportStatement : IStatementNode
     {
-        public string Operator { get; }
-        public IExpressionNode Right { get; }
+        public string ImportPrefix;
 
-        public PrefixExpression(string op, IExpressionNode right)
+        public string ImportPath;
+
+        public ImportStatement(string importPath, string importPrefix)
         {
-            Operator = op;
-            Right = right;
+            ImportPrefix = importPrefix;
+            ImportPath = importPath;
         }
 
         public string ToReadableString()
         {
-            return $"Prefix {Operator} for {Right.ToReadableString()}";
+            var result = $"Importing {ImportPath}";
+            if (ImportPath != null && ImportPath.Length > 0) result += $"as {ImportPrefix}";
+            return result;
         }
     }
+}
 
-    public struct InfixExpression : IExpressionNode
+public struct PrefixExpression : IExpressionNode
+{
+    public string Operator { get; }
+    public IExpressionNode Right { get; }
+
+    public PrefixExpression(string op, IExpressionNode right)
     {
-        public string Operator { get; }
-        public IExpressionNode Left { get; }
-        public IExpressionNode Right { get; }
-
-        public InfixExpression(IExpressionNode left, IExpressionNode right, string op)
-        {
-            Left = left;
-            Right = right;
-            Operator = op;
-        }
-
-        public string ToReadableString()
-        {
-            return $"Infix {Left.ToReadableString()} {Operator} {Right.ToReadableString()}";
-        }
+        Operator = op;
+        Right = right;
     }
 
-    // TODO: I now have a statement and an expression for this...I think it should be the first but thsi needs to be deduplicated
-    public struct AssignExpression : IExpressionNode
+    public string ToReadableString()
     {
-        public string Identifier { get; }
-        public IExpressionNode Value { get; }
+        return $"Prefix {Operator} for {Right.ToReadableString()}";
+    }
+}
 
-        public AssignExpression(string identifier, IExpressionNode value)
-        {
-            Identifier = identifier;
-            Value = value;
-        }
+public struct InfixExpression : IExpressionNode
+{
+    public string Operator { get; }
+    public IExpressionNode Left { get; }
+    public IExpressionNode Right { get; }
 
-        public string ToReadableString()
-        {
-            return $"Assigning {Value.ToReadableString()} to {Identifier}";
-        }
+    public InfixExpression(IExpressionNode left, IExpressionNode right, string op)
+    {
+        Left = left;
+        Right = right;
+        Operator = op;
     }
 
-    public struct IntegerExpression : IExpressionNode
+    public string ToReadableString()
     {
-        public int Value { get; }
+        return $"Infix {Left.ToReadableString()} {Operator} {Right.ToReadableString()}";
+    }
+}
 
-        public IntegerExpression(int value)
-        {
-            Value = value;
-        }
+// TODO: I now have a statement and an expression for this...I think it should be the first but thsi needs to be deduplicated
+public struct AssignExpression : IExpressionNode
+{
+    public string Identifier { get; }
+    public IExpressionNode Value { get; }
 
-        public string ToReadableString()
-        {
-            return $"Integer {Value}";
-        }
+    public AssignExpression(string identifier, IExpressionNode value)
+    {
+        Identifier = identifier;
+        Value = value;
     }
 
-    public struct BooleanExpression : IExpressionNode
+    public string ToReadableString()
     {
-        public bool Value { get; }
+        return $"Assigning {Value.ToReadableString()} to {Identifier}";
+    }
+}
 
-        public BooleanExpression(bool value)
-        {
-            Value = value;
-        }
+public struct IntegerExpression : IExpressionNode
+{
+    public int Value { get; }
 
-        public string ToReadableString()
-        {
-            return $"Boolean {Value}";
-        }
+    public IntegerExpression(int value)
+    {
+        Value = value;
     }
 
-    // TODO: do we need automatic conversion to double?
-    public struct FloatExpression : IExpressionNode
+    public string ToReadableString()
     {
-        public float Value { get; }
+        return $"Integer {Value}";
+    }
+}
 
-        public FloatExpression(float value)
-        {
-            Value = value;
-        }
+public struct BooleanExpression : IExpressionNode
+{
+    public bool Value { get; }
 
-        public string ToReadableString()
-        {
-            return $"Floating Point {Value}";
-        }
+    public BooleanExpression(bool value)
+    {
+        Value = value;
     }
 
-    public struct StringExpression : IExpressionNode
+    public string ToReadableString()
     {
-        public string Value { get; }
+        return $"Boolean {Value}";
+    }
+}
 
-        public StringExpression(string value)
-        {
-            Value = value;
-        }
+// TODO: do we need automatic conversion to double?
+public struct FloatExpression : IExpressionNode
+{
+    public float Value { get; }
 
-        public string ToReadableString()
-        {
-            return $"String {Value}";
-        }
+    public FloatExpression(float value)
+    {
+        Value = value;
     }
 
-    public struct IdentifierExpression : IExpressionNode
+    public string ToReadableString()
     {
-        public string IdentifierName { get; }
+        return $"Floating Point {Value}";
+    }
+}
 
-        public IdentifierExpression(string identifierName)
-        {
-            IdentifierName = identifierName;
-        }
+public struct StringExpression : IExpressionNode
+{
+    public string Value { get; }
 
-        public string ToReadableString()
-        {
-            return $"Identifier {IdentifierName}";
-        }
+    public StringExpression(string value)
+    {
+        Value = value;
     }
 
-    public struct NullExpression : IExpressionNode
+    public string ToReadableString()
     {
-        public string ToReadableString()
-        {
-            return $"Null";
-        }
+        return $"String {Value}";
+    }
+}
+
+public struct IdentifierExpression : IExpressionNode
+{
+    public string IdentifierName { get; }
+
+    public IdentifierExpression(string identifierName)
+    {
+        IdentifierName = identifierName;
     }
 
-    //TODO : I am not sure if this is smart
-    public struct SemicolonExpression : IExpressionNode
+    public string ToReadableString()
     {
-        public string ToReadableString()
-        {
-            return "Semicolon";
-        }
+        return $"Identifier {IdentifierName}";
+    }
+}
+
+public struct NullExpression : IExpressionNode
+{
+    public string ToReadableString()
+    {
+        return "Null";
+    }
+}
+
+//TODO : I am not sure if this is smart
+public struct SemicolonExpression : IExpressionNode
+{
+    public string ToReadableString()
+    {
+        return "Semicolon";
+    }
+}
+
+public struct CallExpression : IExpressionNode
+{
+    public IExpressionNode Identifier { get; }
+    public List<IExpressionNode> Arguments { get; }
+
+    public CallExpression(IExpressionNode identifier, List<IExpressionNode> arguments)
+    {
+        Identifier = identifier;
+        Arguments = arguments;
     }
 
-    public struct CallExpression : IExpressionNode
+    public string ToReadableString()
     {
-        public IExpressionNode Identifier { get; }
-        public List<IExpressionNode> Arguments { get; }
-
-        public CallExpression(IExpressionNode identifier, List<IExpressionNode> arguments)
+        // Start with 64 expected size, this can outgrow therefore this is not critical
+        var sb = new StringBuilder("Calling ", 64);
+        if (Arguments.Count == 0)
         {
-            Identifier = identifier;
-            Arguments = arguments;
-        }
-
-        public string ToReadableString()
-        {
-            // Start with 64 expected size, this can outgrow therefore this is not critical
-            var sb = new StringBuilder("Calling ", 64);
-            if (Arguments.Count == 0)
-            {
-                sb.AppendFormat("{0} with no arguments ", Identifier.ToReadableString());
-                return sb.ToString();
-            }
-
-            sb.AppendFormat("{0} with arguments ", Identifier.ToReadableString());
-            Arguments.ForEach(element => { sb.AppendFormat("{0},", element.ToReadableString()); });
-            // This feels illegal
-            sb.Length--;
+            sb.AppendFormat("{0} with no arguments ", Identifier.ToReadableString());
             return sb.ToString();
         }
+
+        sb.AppendFormat("{0} with arguments ", Identifier.ToReadableString());
+        Arguments.ForEach(element => { sb.AppendFormat("{0},", element.ToReadableString()); });
+        // This feels illegal
+        sb.Length--;
+        return sb.ToString();
+    }
+}
+
+public struct ExpressionStatement : IStatementNode
+{
+    public IExpressionNode Expression { get; }
+
+    public ExpressionStatement(IExpressionNode expression)
+    {
+        Expression = expression;
     }
 
-    public struct ExpressionStatement : IStatementNode
+    public string ToReadableString()
     {
-        public IExpressionNode Expression { get; }
+        return $"Expression {Expression.ToReadableString()}";
+    }
+}
 
-        public ExpressionStatement(IExpressionNode expression)
-        {
-            Expression = expression;
-        }
+public struct AssignStatement : IStatementNode
+{
+    //public IExpressionNode Identifier { get; }
+    public string Identifier { get; }
+    public IExpressionNode Value { get; }
 
-        public string ToReadableString()
-        {
-            return $"Expression {Expression.ToReadableString()}";
-        }
+    public AssignStatement(string identifier, IExpressionNode value)
+    {
+        Identifier = identifier;
+        Value = value;
     }
 
-    public struct AssignStatement : IStatementNode
+    public string ToReadableString()
     {
-        //public IExpressionNode Identifier { get; }
-        public string Identifier { get; }
-        public IExpressionNode Value { get; }
-
-        public AssignStatement(string identifier, IExpressionNode value)
-        {
-            Identifier = identifier;
-            Value = value;
-        }
-
-        public string ToReadableString()
-        {
-            return $"Assign {Value.ToReadableString()} to {Identifier}";
-        }
+        return $"Assign {Value.ToReadableString()} to {Identifier}";
     }
 }

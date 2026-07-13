@@ -42,6 +42,9 @@ namespace Spelllang.Lexer
         WHILE,
         BREAK,
 
+        IMPORT,
+        AS,
+
         UNKNOWN
     }
 
@@ -57,7 +60,9 @@ namespace Spelllang.Lexer
             { "if", Type.IF },
             { "else", Type.ELSE },
             { "while", Type.WHILE },
-            { "break", Type.BREAK }
+            { "break", Type.BREAK },
+            { "import", Type.IMPORT },
+            { "as", Type.AS }
         };
 
         public static Type GetValueOrDefault(string keyword, Type fallback)
@@ -86,8 +91,8 @@ namespace Spelllang.Lexer
 // custom enumerator like implementation to support peek
     public class TokenEnumerator
     {
-        private List<Token> TokenList;
-        private int CurrentIndex = 0;
+        private readonly List<Token> TokenList;
+        private int CurrentIndex;
 
         public TokenEnumerator(List<Token> tokenList)
         {

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -33,15 +32,28 @@ namespace Spelllang.Parser
 
     public class Parser
     {
-        private ProgramNode ProgramNode;
+        private readonly bool Done = false;
 
-        private bool Done = false;
-
-        private TokenEnumerator LexerEnumerator;
-
-        private Dictionary<Type, ParsePrefixExpressionFn> PrefixParserFn;
+        private readonly TokenEnumerator LexerEnumerator;
         private Dictionary<Type, ParseInfixExpressionFn> InfixParserFn;
         private Dictionary<Type, Precedence> PrecedenceMapping;
+
+        private Dictionary<Type, ParsePrefixExpressionFn> PrefixParserFn;
+        private ProgramNode ProgramNode;
+
+        public Parser(Lexer.Lexer lexer)
+        {
+            Setup();
+            LexerEnumerator = lexer.GetEnumerator();
+            Parse();
+        }
+
+        public Parser(TokenEnumerator lexerEnumerator)
+        {
+            Setup();
+            LexerEnumerator = lexerEnumerator;
+            Parse();
+        }
 
         private void Setup()
         {
@@ -99,20 +111,6 @@ namespace Spelllang.Parser
             ProgramNode = new ProgramNode();
         }
 
-        public Parser(Lexer.Lexer lexer)
-        {
-            Setup();
-            LexerEnumerator = lexer.GetEnumerator();
-            Parse();
-        }
-
-        public Parser(TokenEnumerator lexerEnumerator)
-        {
-            Setup();
-            LexerEnumerator = lexerEnumerator;
-            Parse();
-        }
-
         public ProgramNode GetRootProgram()
         {
             return ProgramNode;
@@ -139,6 +137,7 @@ namespace Spelllang.Parser
                 Type.IF => ParseIfStatement(),
                 Type.WHILE => ParseWhileStatement(),
                 Type.BREAK => ParseBreakStatement(),
+                Type.IMPORT => ParseImportStatement(),
                 _ => new ExpressionStatement(ParseExpression(Precedence.PRECEDENCE_LOWEST))
             };
 
@@ -336,6 +335,20 @@ namespace Spelllang.Parser
         private IStatementNode ParseBreakStatement()
         {
             return new BreakStatement();
+        }
+
+        private IStatementNode ParseImportStatement()
+        {
+            LexerEnumerator.Next();
+            var importPath = LexerEnumerator.Current().Value; // assume this counts as identifier?
+            string importName = null;
+            if (PeekItemTypeEquals(Type.AS))
+            {
+                LexerEnumerator.Next();
+                importName = LexerEnumerator.Current().Value;
+            }
+
+            return new ImportStatement(importPath, importName);
         }
 
         // TODO: This is clever and dumb...clever because it works, dumb because this has to jump through extra hoops due to my poorly designed API
