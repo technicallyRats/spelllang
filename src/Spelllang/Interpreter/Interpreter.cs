@@ -9,11 +9,10 @@ namespace Spelllang.Interpreter
 {
     public class Interpreter
     {
-        private ProgramNode RootNode;
+        private readonly Parser.Parser _Parser;
 
-        private Parser.Parser _Parser;
-
-        private List<(string name, IRuntimeBuiltin value)> Builtins;
+        private readonly List<(string name, IRuntimeBuiltin value)> Builtins;
+        private readonly ProgramNode RootNode;
 
         public Interpreter(Parser.Parser parser)
         {
@@ -91,6 +90,14 @@ namespace Spelllang.Interpreter
                     return new RuntimeNull();
                 case IExpressionNode expressionNode:
                     return RunExpression(expressionNode, _Context);
+                case ImportStatement importStatement:
+                    // Construct new, pure context
+                    var importContext = new Context(null, Builtins);
+                    var importRoot = Utils.readAndParseInput(importStatement.ImportPath);
+                    // populate context -> this cannot(!) modify the current context just yet
+                    var _ = RunProgram(importRoot, importContext);
+                    _Context.Merge(importContext, importStatement.ImportPrefix, true);
+                    return new RuntimeNull();
                 default:
                     SpelllangDiagnostics.Error("Unknown statement type " + statement);
                     return null;
@@ -118,7 +125,8 @@ namespace Spelllang.Interpreter
                         case RuntimeFunction fnNode: return RunFunction(fnNode, callNode, _Context);
                         case IRuntimeBuiltin builtinNode: return RunBuiltin(builtinNode, callNode, _Context);
                         default:
-                            SpelllangDiagnostics.Error("Unexpected resolution for function call: " + node.ToReadableString());
+                            SpelllangDiagnostics.Error("Unexpected resolution for function call: " +
+                                                       node.ToReadableString());
                             return new RuntimeNull();
                     }
                 case InfixExpression infixNode:
