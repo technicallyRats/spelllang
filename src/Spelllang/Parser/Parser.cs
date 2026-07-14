@@ -347,7 +347,6 @@ namespace Spelllang.Parser
             {
                 LexerEnumerator.Next();
                 LexerEnumerator.Next();
-                Console.WriteLine("Current " + LexerEnumerator.Current());
                 importName = LexerEnumerator.Current().Value;
             }
 
