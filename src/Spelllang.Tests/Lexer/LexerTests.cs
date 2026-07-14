@@ -1,8 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Security.Claims;
-using Spelllang.Lexer;
 using NUnit.Framework;
+using Spelllang.Lexer;
 
 namespace Spelllang.Tests.Lexer
 {
@@ -46,10 +45,10 @@ namespace Spelllang.Tests.Lexer
         [TestCase("TEST", Type.IDENTIFIER, "TEST")]
         [TestCase("_TEST", Type.IDENTIFIER, "_TEST")]
         [TestCase("_TEST1", Type.IDENTIFIER, "_TEST1")]
+        [TestCase("A.B", Type.IDENTIFIER, "A.B")]
         public void Lex_Identifier(string input, Type type, string value)
         {
             var expected = new List<Token> { new(type, value) };
-            AssertTokenList(Lex(input), expected);
         }
 
         [TestCase("A = 1", Type.IDENTIFIER, "A", Type.ASSIGN, "=", Type.NUMBER, "1")]

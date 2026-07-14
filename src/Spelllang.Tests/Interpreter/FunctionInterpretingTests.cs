@@ -34,6 +34,7 @@ namespace Spelllang.Tests.Interpreter
                         new(Type.IDENTIFIER, "add"),
                         new(Type.PARENTHESES_LEFT, "("),
                         new(Type.NUMBER, "2"),
+                        new(Type.COMMA, ","),
                         new(Type.NUMBER, "3"),
                         new(Type.PARENTHESES_RIGHT, ")")
                     },

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -341,10 +342,12 @@ namespace Spelllang.Parser
         {
             LexerEnumerator.Next();
             var importPath = LexerEnumerator.Current().Value; // assume this counts as identifier?
-            string importName = null;
+            var importName = "";
             if (PeekItemTypeEquals(Type.AS))
             {
                 LexerEnumerator.Next();
+                LexerEnumerator.Next();
+                Console.WriteLine("Current " + LexerEnumerator.Current());
                 importName = LexerEnumerator.Current().Value;
             }
 

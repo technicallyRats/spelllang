@@ -4,6 +4,7 @@ using System.Linq;
 using Spelllang.AST;
 using Spelllang.Builtins;
 using Spelllang.Diagnostics;
+using Spelllang.Interpreter.Importer;
 
 namespace Spelllang.Interpreter
 {
@@ -12,12 +13,14 @@ namespace Spelllang.Interpreter
         private readonly Parser.Parser _Parser;
 
         private readonly List<(string name, IRuntimeBuiltin value)> Builtins;
+        private readonly List<IImportResolver> Resolvers;
         private readonly ProgramNode RootNode;
 
         public Interpreter(Parser.Parser parser)
         {
             _Parser = parser;
             Builtins = new List<(string name, IRuntimeBuiltin value)>();
+            Resolvers = new List<IImportResolver>();
             RootNode = _Parser.GetRootProgram();
         }
 
@@ -25,6 +28,16 @@ namespace Spelllang.Interpreter
         {
             _Parser = parser;
             Builtins = builtins;
+            Resolvers = new List<IImportResolver>();
+            RootNode = _Parser.GetRootProgram();
+        }
+
+        public Interpreter(Parser.Parser parser, List<(string name, IRuntimeBuiltin value)> builtins,
+            List<IImportResolver> resolvers)
+        {
+            _Parser = parser;
+            Builtins = builtins;
+            Resolvers = resolvers;
             RootNode = _Parser.GetRootProgram();
         }
 
@@ -93,9 +106,11 @@ namespace Spelllang.Interpreter
                 case ImportStatement importStatement:
                     // Construct new, pure context
                     var importContext = new Context(null, Builtins);
-                    var importRoot = Utils.readAndParseInput(importStatement.ImportPath);
+                    var importRoot = ImportUtils.ReadAndParseInput(importStatement.ImportPath, Resolvers);
                     // populate context -> this cannot(!) modify the current context just yet
                     var _ = RunProgram(importRoot, importContext);
+                    // We do not need builtin duplicates
+                    foreach (var builtin in Builtins) importContext.Evict(builtin.name);
                     _Context.Merge(importContext, importStatement.ImportPrefix, true);
                     return new RuntimeNull();
                 default:

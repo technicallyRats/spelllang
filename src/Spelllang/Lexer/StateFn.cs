@@ -10,7 +10,7 @@ namespace Spelllang.Lexer
 
         private static readonly string NUMBER_INITIAL = @"^[0-9]+$";
 
-        private static readonly string ALLOWED_IDENTIFIER_CHARACTERS = @"^[a-zA-Z0-9_]+$";
+        private static readonly string ALLOWED_IDENTIFIER_CHARACTERS = @"^[a-zA-Z0-9_\.]+$";
 
         public static StateFn LexLine(Lexer lexer)
         {
@@ -80,7 +80,7 @@ namespace Spelllang.Lexer
 
         public static StateFn BuildSingleEmitStateFn(Type type)
         {
-            return (Lexer lexer) =>
+            return lexer =>
             {
                 lexer.Next();
                 lexer.Emit(type);
@@ -90,7 +90,7 @@ namespace Spelllang.Lexer
 
         public static StateFn BuildConditionalEmitStateFn(string conditional, Type onMatchType, Type noMatchType)
         {
-            return (Lexer lexer) =>
+            return lexer =>
             {
                 lexer.Next();
                 if (lexer.Current() == conditional)
