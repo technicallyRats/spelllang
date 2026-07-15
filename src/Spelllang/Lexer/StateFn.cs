@@ -21,9 +21,9 @@ namespace Spelllang.Lexer
                 return LexLine;
             }
 
-            if (Regex.IsMatch(lexer.Current(), ALLOWED_IDENTIFIER_START_CHARACTERS)) return LexIdentifier;
+            if (SafeMatch(lexer.Current(), ALLOWED_IDENTIFIER_START_CHARACTERS)) return LexIdentifier;
 
-            if (Regex.IsMatch(lexer.Current(), NUMBER_INITIAL)) return LexNumber;
+            if (SafeMatch(lexer.Current(), NUMBER_INITIAL)) return LexNumber;
 
             switch (lexer.Current())
             {
@@ -112,7 +112,7 @@ namespace Spelllang.Lexer
             var terminatingCharacter = lexer.Current();
             lexer.Next();
             lexer.Ignore();
-            while (lexer.Current() != terminatingCharacter) lexer.Next();
+            while (lexer.Current() != null && lexer.Current() != terminatingCharacter) lexer.Next();
             lexer.Emit(Type.STRING);
             lexer.Next();
             lexer.Ignore();
@@ -121,7 +121,7 @@ namespace Spelllang.Lexer
 
         public static StateFn LexIdentifier(Lexer lexer)
         {
-            while (Regex.IsMatch(lexer.Current(), ALLOWED_IDENTIFIER_CHARACTERS))
+            while (SafeMatch(lexer.Current(), ALLOWED_IDENTIFIER_CHARACTERS))
                 if (lexer.Next() == null)
                     break;
 
@@ -132,20 +132,25 @@ namespace Spelllang.Lexer
         public static StateFn LexNumber(Lexer lexer)
         {
             while (
-                lexer.Current() != null &&
                 // is number
-                Regex.IsMatch(lexer.Current(), NUMBER_INITIAL)
+                SafeMatch(lexer.Current(), NUMBER_INITIAL)
             )
             {
                 lexer.Next();
 
                 // number is format 1_000 or 3.41
-                if ((lexer.Current() == "_" || lexer.Current() == ".") && Regex.IsMatch(lexer.Peek(), NUMBER_INITIAL))
+                if ((lexer.Current() == "_" || lexer.Current() == ".") && SafeMatch(lexer.Peek(), NUMBER_INITIAL))
                     lexer.Next();
             }
 
             lexer.Emit(Type.NUMBER);
             return LexLine;
+        }
+
+        private static bool SafeMatch(string? current, string pattern)
+        {
+            if (current == null) return false;
+            return Regex.IsMatch(current, pattern);
         }
     }
 }

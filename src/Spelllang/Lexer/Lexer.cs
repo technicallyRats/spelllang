@@ -1,6 +1,5 @@
 // this includes a tokenizer
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,12 +7,12 @@ namespace Spelllang.Lexer
 {
     public class Lexer
     {
-        private int StartIndex = 0;
-        private int CurrentIndex = 0;
+        private int CurrentIndex;
 
-        private string Input;
+        private readonly string Input;
+        private int StartIndex;
 
-        private List<Token> TokenList = new List<Token>();
+        private readonly List<Token> TokenList = new();
 
         public Lexer(string input)
         {
@@ -34,8 +33,7 @@ namespace Spelllang.Lexer
             do
             {
                 currentStateFn = currentStateFn(this);
-            }
-            while (TokenList.LastOrDefault().Type != Type.EOF);
+            } while (TokenList.LastOrDefault().Type != Type.EOF);
         }
 
         public string Rest()
@@ -45,39 +43,34 @@ namespace Spelllang.Lexer
 
         public void Emit(Type type)
         {
-            string value = Input.Substring(StartIndex, CurrentIndex - StartIndex);
+            var value = Input.Substring(StartIndex, CurrentIndex - StartIndex);
             type = KeyWords.GetValueOrDefault(value, type);
-            Token newToken = new Token(type, value);
+            var newToken = new Token(type, value);
             TokenList.Add(newToken);
             StartIndex = CurrentIndex;
         }
 
-        public string Peek()
+        public string? Peek()
         {
-            if (CurrentIndex >= Input.Length - 1)
-            {
-                return null;
-            }
-            return Char.ToString(Input[CurrentIndex + 1]);
+            if (CurrentIndex >= Input.Length - 1) return null;
+            return char.ToString(Input[CurrentIndex + 1]);
         }
 
-        public string Next()
+        public string? Next()
         {
             if (CurrentIndex >= Input.Length - 1)
             {
                 CurrentIndex = Input.Length;
                 return null;
             }
-            return Char.ToString(Input[++CurrentIndex]);
+
+            return char.ToString(Input[++CurrentIndex]);
         }
 
-        public string Current()
+        public string? Current()
         {
-            if (CurrentIndex > Input.Length - 1)
-            {
-                return null;
-            }
-            return Char.ToString(Input[CurrentIndex]);
+            if (CurrentIndex > Input.Length - 1) return null;
+            return char.ToString(Input[CurrentIndex]);
         }
 
         public void Ignore()
