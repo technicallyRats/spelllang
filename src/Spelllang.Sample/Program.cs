@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using Spelllang.Builtins;
+using Spelllang.Interpreter;
 using Spelllang.Lexer;
+using Spelllang.Parser;
+using Spelllang.Sample;
 using Type = Spelllang.Lexer.Type;
 
 public class Program
@@ -11,7 +16,7 @@ public class Program
         if (args.Length > 0) filename = args[0];
 
         Console.WriteLine("Reading file: " + filename);
-        var file = new System.IO.StreamReader(filename);
+        var file = new StreamReader(filename);
         var l = new Lexer(file.ReadToEnd());
 
         var enumerator = l.GetEnumerator();
@@ -23,16 +28,18 @@ public class Program
         } while (enumerator.Current().Type != Type.EOF);
 
         // reset and parse
-        var p = new Spelllang.Parser.Parser(l);
+        var p = new Parser(l);
         var root = p.GetRootProgram();
 
-        var builtins = new List<(string name, Spelllang.Builtins.IRuntimeBuiltin value)>();
-        builtins.Add(("PRINT", new Spelllang.Sample.PrintBuiltin()));
+        if (p.IsFaulty()) throw new Exception("Parsing failed, see above for details");
+
+        var builtins = new List<(string name, IRuntimeBuiltin value)>();
+        builtins.Add(("PRINT", new PrintBuiltin()));
 
         Console.WriteLine("-- AST --");
         Console.WriteLine(root.ToReadableString());
 
-        var interpreter = new Spelllang.Interpreter.Interpreter(p, builtins);
+        var interpreter = new Interpreter(p, builtins);
 
         Console.WriteLine("-- RUNTIME LOGS --");
         var result = interpreter.Run();

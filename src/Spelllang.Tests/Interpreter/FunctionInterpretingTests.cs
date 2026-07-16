@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Spelllang.Lexer;
+using Spelllang.Tests.TestUtils;
 
 namespace Spelllang.Tests.Interpreter
 {
@@ -15,49 +16,55 @@ namespace Spelllang.Tests.Interpreter
         {
             get
             {
-                yield return new TestCaseData(
-                    new List<Token>
-                    {
-                        new(Type.FUNCTION, "function"),
-                        new(Type.IDENTIFIER, "add"),
-                        new(Type.PARENTHESES_LEFT, "("),
-                        new(Type.IDENTIFIER, "a"),
-                        new(Type.COMMA, ","),
-                        new(Type.IDENTIFIER, "b"),
-                        new(Type.PARENTHESES_RIGHT, ")"),
-                        new(Type.BRACES_LEFT, "{"),
-                        new(Type.RETURN, "return"),
-                        new(Type.IDENTIFIER, "a"),
-                        new(Type.PLUS, "+"),
-                        new(Type.IDENTIFIER, "b"),
-                        new(Type.BRACES_RIGHT, "}"),
-                        new(Type.IDENTIFIER, "add"),
-                        new(Type.PARENTHESES_LEFT, "("),
-                        new(Type.NUMBER, "2"),
-                        new(Type.COMMA, ","),
-                        new(Type.NUMBER, "3"),
-                        new(Type.PARENTHESES_RIGHT, ")")
-                    },
-                    5
-                ).SetName("Call Function with arguments and return value");
+                {
+                    var inc = new Incrementer();
+                    yield return new TestCaseData(
+                        new List<Token>
+                        {
+                            new(Type.FUNCTION, "function", inc.Increment("function")),
+                            new(Type.IDENTIFIER, "add", inc.Increment("add")),
+                            new(Type.PARENTHESES_LEFT, "(", inc.Increment("(")),
+                            new(Type.IDENTIFIER, "a", inc.Increment("a")),
+                            new(Type.COMMA, ",", inc.Increment(",")),
+                            new(Type.IDENTIFIER, "b", inc.Increment("b")),
+                            new(Type.PARENTHESES_RIGHT, ")", inc.Increment(")")),
+                            new(Type.BRACES_LEFT, "{", inc.Increment("{")),
+                            new(Type.RETURN, "return", inc.Increment("return")),
+                            new(Type.IDENTIFIER, "a", inc.Increment("a")),
+                            new(Type.PLUS, "+", inc.Increment("+")),
+                            new(Type.IDENTIFIER, "b", inc.Increment("b")),
+                            new(Type.BRACES_RIGHT, "}", inc.Increment("}")),
+                            new(Type.IDENTIFIER, "add", inc.Increment("add")),
+                            new(Type.PARENTHESES_LEFT, "(", inc.Increment("(")),
+                            new(Type.NUMBER, "2", inc.Increment("2")),
+                            new(Type.COMMA, ",", inc.Increment(",")),
+                            new(Type.NUMBER, "3", inc.Increment("3")),
+                            new(Type.PARENTHESES_RIGHT, ")", inc.Increment(")"))
+                        },
+                        5
+                    ).SetName("Call Function with arguments and return value");
+                }
 
-                yield return new TestCaseData(
-                    new List<Token>
-                    {
-                        new(Type.FUNCTION, "function"),
-                        new(Type.IDENTIFIER, "abc"),
-                        new(Type.PARENTHESES_LEFT, "("),
-                        new(Type.PARENTHESES_RIGHT, ")"),
-                        new(Type.BRACES_LEFT, "{"),
-                        new(Type.RETURN, "return"),
-                        new(Type.NUMBER, "2"),
-                        new(Type.BRACES_RIGHT, "}"),
-                        new(Type.IDENTIFIER, "abc"),
-                        new(Type.PARENTHESES_LEFT, "("),
-                        new(Type.PARENTHESES_RIGHT, ")")
-                    },
-                    2
-                ).SetName("Call Function without arguments but with return value");
+                {
+                    var inc = new Incrementer();
+                    yield return new TestCaseData(
+                        new List<Token>
+                        {
+                            new(Type.FUNCTION, "function", inc.Increment("function")),
+                            new(Type.IDENTIFIER, "abc", inc.Increment("abc")),
+                            new(Type.PARENTHESES_LEFT, "(", inc.Increment("(")),
+                            new(Type.PARENTHESES_RIGHT, ")", inc.Increment(")")),
+                            new(Type.BRACES_LEFT, "{", inc.Increment("{")),
+                            new(Type.RETURN, "return", inc.Increment("return")),
+                            new(Type.NUMBER, "2", inc.Increment("2")),
+                            new(Type.BRACES_RIGHT, "}", inc.Increment("}")),
+                            new(Type.IDENTIFIER, "abc", inc.Increment("abc")),
+                            new(Type.PARENTHESES_LEFT, "(", inc.Increment("(")),
+                            new(Type.PARENTHESES_RIGHT, ")", inc.Increment(")"))
+                        },
+                        2
+                    ).SetName("Call Function without arguments but with return value");
+                }
             }
         }
 

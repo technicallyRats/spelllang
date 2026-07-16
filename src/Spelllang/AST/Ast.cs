@@ -17,6 +17,14 @@ namespace Spelllang.AST
     {
     }
 
+    public struct NullStatement : IStatementNode
+    {
+        public string ToReadableString()
+        {
+            return "nullstatement";
+        }
+    }
+
     public struct ProgramNode : IAstNode
     {
         public List<IStatementNode> Statements { get; set; }

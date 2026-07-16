@@ -43,6 +43,11 @@ namespace Spelllang.Interpreter
 
         public IRuntimeVariableBase Run()
         {
+            if (_Parser.IsFaulty())
+            {
+                SpelllangDiagnostics.Error("I refuse to do this! I shall be fed appropriately");
+                return null;
+            }
             return RunProgram(RootNode, new Context(null, Builtins)).result;
         }
 

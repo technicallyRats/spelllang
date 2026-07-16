@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Spelllang.AST;
 using Spelllang.Lexer;
+using Spelllang.Tests.TestUtils;
 
 namespace Spelllang.Tests.Parser
 {
@@ -27,11 +28,12 @@ namespace Spelllang.Tests.Parser
             {
                 yield return BuildSimpleIntegerPrefixTestCase("+", Type.PLUS).SetName("Plus prefix");
                 yield return BuildSimpleIntegerPrefixTestCase("-", Type.MINUS).SetName("Plus prefix");
+                var inc = new Incrementer();
                 yield return new TestCaseData(
                     new List<Token>
                     {
-                        new(Type.NOT, "!"),
-                        new(Type.BOOLEAN, "true")
+                        new(Type.NOT, "!", inc.Increment("!")),
+                        new(Type.BOOLEAN, "true", inc.Increment("true"))
                     },
                     new ProgramNode(new List<IStatementNode>
                         {
@@ -55,12 +57,13 @@ namespace Spelllang.Tests.Parser
 
         private static TestCaseData BuildSimpleInfixTestCase(string op, Type operatorType)
         {
+            var inc = new Incrementer();
             return new TestCaseData(
                 new List<Token>
                 {
-                    new(Type.NUMBER, "1"),
-                    new(operatorType, op),
-                    new(Type.NUMBER, "1")
+                    new(Type.NUMBER, "1", inc.Increment("1")),
+                    new(operatorType, op, inc.Increment(op)),
+                    new(Type.NUMBER, "1", inc.Increment("1"))
                 },
                 new ProgramNode(new List<IStatementNode>
                     {
@@ -77,11 +80,12 @@ namespace Spelllang.Tests.Parser
 
         private static TestCaseData BuildSimpleIntegerPrefixTestCase(string op, Type operatorType)
         {
+            var inc = new Incrementer();
             return new TestCaseData(
                 new List<Token>
                 {
-                    new(operatorType, op),
-                    new(Type.NUMBER, "1")
+                    new(operatorType, op, inc.Increment(op)),
+                    new(Type.NUMBER, "1", inc.Increment("1"))
                 },
                 new ProgramNode(new List<IStatementNode>
                     {

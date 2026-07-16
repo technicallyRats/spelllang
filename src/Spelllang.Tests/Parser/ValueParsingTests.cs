@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Spelllang.AST;
 using Spelllang.Lexer;
+using Spelllang.Tests.TestUtils;
 
 namespace Spelllang.Tests.Parser
 {
@@ -12,8 +13,9 @@ namespace Spelllang.Tests.Parser
         {
             get
             {
+                var inc = new Incrementer();
                 yield return new TestCaseData(
-                    new List<Token> { new(Type.NUMBER, "1") },
+                    new List<Token> { new(Type.NUMBER, "1", inc.Increment("1")) },
                     new ProgramNode(new List<IStatementNode>
                     {
                         new ExpressionStatement(
@@ -21,8 +23,9 @@ namespace Spelllang.Tests.Parser
                         )
                     })
                 ).SetName("Simple Int");
+                inc.Reset();
                 yield return new TestCaseData(
-                    new List<Token> { new(Type.NUMBER, "1_000") },
+                    new List<Token> { new(Type.NUMBER, "1_000", inc.Increment("1_000")) },
                     new ProgramNode(new List<IStatementNode>
                     {
                         new ExpressionStatement(
@@ -30,8 +33,9 @@ namespace Spelllang.Tests.Parser
                         )
                     })
                 ).SetName("Formatted Int");
+                inc.Reset();
                 yield return new TestCaseData(
-                    new List<Token> { new(Type.NUMBER, "3.14") },
+                    new List<Token> { new(Type.NUMBER, "3.14", inc.Increment("3.14")) },
                     new ProgramNode(new List<IStatementNode>
                     {
                         new ExpressionStatement(
@@ -39,8 +43,9 @@ namespace Spelllang.Tests.Parser
                         )
                     })
                 ).SetName("Simple Float");
+                inc.Reset();
                 yield return new TestCaseData(
-                    new List<Token> { new(Type.NUMBER, "3_141.59265359") },
+                    new List<Token> { new(Type.NUMBER, "3_141.59265359", inc.Increment("3_141.59265359")) },
                     new ProgramNode(new List<IStatementNode>
                     {
                         new ExpressionStatement(
@@ -55,8 +60,9 @@ namespace Spelllang.Tests.Parser
         {
             get
             {
+                var inc = new Incrementer();
                 yield return new TestCaseData(
-                    new List<Token> { new(Type.BOOLEAN, "true") },
+                    new List<Token> { new(Type.BOOLEAN, "true", inc.Increment("true")) },
                     new ProgramNode(new List<IStatementNode>
                     {
                         new ExpressionStatement(
@@ -64,8 +70,9 @@ namespace Spelllang.Tests.Parser
                         )
                     })
                 ).SetName("True");
+                inc.Reset();
                 yield return new TestCaseData(
-                    new List<Token> { new(Type.BOOLEAN, "false") },
+                    new List<Token> { new(Type.BOOLEAN, "false", inc.Increment("false")) },
                     new ProgramNode(new List<IStatementNode>
                     {
                         new ExpressionStatement(
@@ -80,8 +87,9 @@ namespace Spelllang.Tests.Parser
         {
             get
             {
+                var inc = new Incrementer();
                 yield return new TestCaseData(
-                    new List<Token> { new(Type.STRING, "hello world") },
+                    new List<Token> { new(Type.STRING, "hello world", inc.Increment("hello world")) },
                     new ProgramNode(new List<IStatementNode>
                     {
                         new ExpressionStatement(
@@ -96,8 +104,9 @@ namespace Spelllang.Tests.Parser
         {
             get
             {
+                var inc = new Incrementer();
                 yield return new TestCaseData(
-                    new List<Token> { new(Type.NULL, "null") },
+                    new List<Token> { new(Type.NULL, "null", inc.Increment("null")) },
                     new ProgramNode(new List<IStatementNode>
                     {
                         new ExpressionStatement(

@@ -73,11 +73,14 @@ namespace Spelllang.Lexer
 
     public struct Token
     {
-        public Token(Type type, string value)
+        public Token(Type type, string value, long startIndex)
         {
             Type = type;
             Value = value;
+            StartIndex = startIndex;
         }
+
+        public long StartIndex;
 
         public Type Type { get; }
         public string Value { get; }
@@ -91,44 +94,52 @@ namespace Spelllang.Lexer
 // custom enumerator like implementation to support peek
     public class TokenEnumerator
     {
-        private readonly List<Token> TokenList;
-        private int CurrentIndex;
+        private readonly List<Token> _tokenList;
 
         public TokenEnumerator(List<Token> tokenList)
         {
-            TokenList = tokenList;
+            _tokenList = tokenList;
+        }
+
+        private int CurrentIndex { get; set; }
+
+        private long GetMaxValidIndex()
+        {
+            return _tokenList.Last().StartIndex + _tokenList.Last().Value.Length;
         }
 
         public Token Current()
         {
-            if (CurrentIndex > TokenList.Count - 1) return new Token(Type.EOF, "");
+            if (CurrentIndex > _tokenList.Count - 1)
+                return new Token(Type.EOF, "", GetMaxValidIndex());
 
-            return TokenList.ElementAt(CurrentIndex);
+            return _tokenList.ElementAt(CurrentIndex);
         }
 
         public Token Next()
         {
-            if (CurrentIndex >= TokenList.Count - 1)
+            if (CurrentIndex >= _tokenList.Count - 1)
             {
                 CurrentIndex++;
-                return new Token(Type.EOF, "");
+                return new Token(Type.EOF, "", GetMaxValidIndex());
             }
 
-            return TokenList[++CurrentIndex];
+            return _tokenList[++CurrentIndex];
         }
 
         public Token Peek()
         {
-            if (CurrentIndex >= TokenList.Count - 1) return new Token(Type.EOF, "");
+            if (CurrentIndex >= _tokenList.Count - 1)
+                return new Token(Type.EOF, "", GetMaxValidIndex());
 
-            return TokenList[CurrentIndex + 1];
+            return _tokenList[CurrentIndex + 1];
         }
 
         public bool MoveNext()
         {
             if (Next().Type == Type.EOF) return false;
 
-            return CurrentIndex >= TokenList.Count - 1;
+            return CurrentIndex >= _tokenList.Count - 1;
         }
     }
 }

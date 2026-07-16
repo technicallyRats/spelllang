@@ -1,9 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using NUnit.Framework;
-using Spelllang.AST;
 using Spelllang.Lexer;
+using Spelllang.Tests.TestUtils;
 using Type = Spelllang.Lexer.Type;
 
 namespace Spelllang.Tests.Interpreter
@@ -14,13 +15,11 @@ namespace Spelllang.Tests.Interpreter
     [TestFixture]
     public class OperatorInterpretingTests
     {
-        private System.IO.TextWriter? _originalOut;
-
         [SetUp]
         public void SetUp()
         {
             _originalOut = Console.Out;
-            Console.SetOut(new System.IO.StringWriter());
+            Console.SetOut(new StringWriter());
         }
 
         [TearDown]
@@ -29,14 +28,17 @@ namespace Spelllang.Tests.Interpreter
             Console.SetOut(_originalOut!);
         }
 
+        private TextWriter? _originalOut;
+
         [Test]
         public void Equal_Ints_SameValue_ReturnsTrue()
         {
+            var inc = new Incrementer();
             var interpreter = InterpreterTestUtils.BuildInterpreter(new List<Token>
             {
-                new(Type.NUMBER, "1"),
-                new(Type.EQUAL, "=="),
-                new(Type.NUMBER, "1")
+                new(Type.NUMBER, "1", inc.Increment("1")),
+                new(Type.EQUAL, "==", inc.Increment("==")),
+                new(Type.NUMBER, "1", inc.Increment("1"))
             });
 
             var result = interpreter.Run();
@@ -47,11 +49,12 @@ namespace Spelllang.Tests.Interpreter
         [Test]
         public void Equal_Ints_DifferentValue_ReturnsFalse()
         {
+            var inc = new Incrementer();
             var interpreter = InterpreterTestUtils.BuildInterpreter(new List<Token>
             {
-                new(Type.NUMBER, "1"),
-                new(Type.EQUAL, "=="),
-                new(Type.NUMBER, "2")
+                new(Type.NUMBER, "1", inc.Increment("1")),
+                new(Type.EQUAL, "==", inc.Increment("==")),
+                new(Type.NUMBER, "2", inc.Increment("2"))
             });
 
             var result = interpreter.Run();
@@ -62,11 +65,12 @@ namespace Spelllang.Tests.Interpreter
         [Test]
         public void Equal_Floats_SameValue_ReturnsTrue()
         {
+            var inc = new Incrementer();
             var interpreter = InterpreterTestUtils.BuildInterpreter(new List<Token>
             {
-                new(Type.NUMBER, "3.14"),
-                new(Type.EQUAL, "=="),
-                new(Type.NUMBER, "3.14")
+                new(Type.NUMBER, "3.14", inc.Increment("3.14")),
+                new(Type.EQUAL, "==", inc.Increment("==")),
+                new(Type.NUMBER, "3.14", inc.Increment("3.14"))
             });
 
             var result = interpreter.Run();
@@ -77,11 +81,12 @@ namespace Spelllang.Tests.Interpreter
         [Test]
         public void Equal_Floats_DifferentValue_ReturnsFalse()
         {
+            var inc = new Incrementer();
             var interpreter = InterpreterTestUtils.BuildInterpreter(new List<Token>
             {
-                new(Type.NUMBER, "3.14"),
-                new(Type.EQUAL, "=="),
-                new(Type.NUMBER, "2.71")
+                new(Type.NUMBER, "3.14", inc.Increment("3.14")),
+                new(Type.EQUAL, "==", inc.Increment("==")),
+                new(Type.NUMBER, "2.71", inc.Increment("2.71"))
             });
 
             var result = interpreter.Run();
@@ -92,11 +97,12 @@ namespace Spelllang.Tests.Interpreter
         [Test]
         public void Equal_Strings_SameValue_ReturnsTrue()
         {
+            var inc = new Incrementer();
             var interpreter = InterpreterTestUtils.BuildInterpreter(new List<Token>
             {
-                new(Type.STRING, "hello"),
-                new(Type.EQUAL, "=="),
-                new(Type.STRING, "hello")
+                new(Type.STRING, "hello", inc.Increment("hello")),
+                new(Type.EQUAL, "==", inc.Increment("==")),
+                new(Type.STRING, "hello", inc.Increment("hello"))
             });
 
             var result = interpreter.Run();
@@ -107,11 +113,12 @@ namespace Spelllang.Tests.Interpreter
         [Test]
         public void Equal_Strings_DifferentValue_ReturnsFalse()
         {
+            var inc = new Incrementer();
             var interpreter = InterpreterTestUtils.BuildInterpreter(new List<Token>
             {
-                new(Type.STRING, "hello"),
-                new(Type.EQUAL, "=="),
-                new(Type.STRING, "world")
+                new(Type.STRING, "hello", inc.Increment("hello")),
+                new(Type.EQUAL, "==", inc.Increment("==")),
+                new(Type.STRING, "world", inc.Increment("world"))
             });
 
             var result = interpreter.Run();
@@ -122,11 +129,12 @@ namespace Spelllang.Tests.Interpreter
         [Test]
         public void Equal_Booleans_SameValue_ReturnsTrue()
         {
+            var inc = new Incrementer();
             var interpreter = InterpreterTestUtils.BuildInterpreter(new List<Token>
             {
-                new(Type.BOOLEAN, "true"),
-                new(Type.EQUAL, "=="),
-                new(Type.BOOLEAN, "true")
+                new(Type.BOOLEAN, "true", inc.Increment("true")),
+                new(Type.EQUAL, "==", inc.Increment("==")),
+                new(Type.BOOLEAN, "true", inc.Increment("true"))
             });
 
             var result = interpreter.Run();
@@ -137,11 +145,12 @@ namespace Spelllang.Tests.Interpreter
         [Test]
         public void Equal_Booleans_DifferentValue_ReturnsFalse()
         {
+            var inc = new Incrementer();
             var interpreter = InterpreterTestUtils.BuildInterpreter(new List<Token>
             {
-                new(Type.BOOLEAN, "true"),
-                new(Type.EQUAL, "=="),
-                new(Type.BOOLEAN, "false")
+                new(Type.BOOLEAN, "true", inc.Increment("true")),
+                new(Type.EQUAL, "==", inc.Increment("==")),
+                new(Type.BOOLEAN, "false", inc.Increment("false"))
             });
 
             var result = interpreter.Run();
@@ -152,11 +161,12 @@ namespace Spelllang.Tests.Interpreter
         [Test]
         public void Equal_CrossType_ReturnsNull()
         {
+            var inc = new Incrementer();
             var interpreter = InterpreterTestUtils.BuildInterpreter(new List<Token>
             {
-                new(Type.NUMBER, "1"),
-                new(Type.EQUAL, "=="),
-                new(Type.STRING, "1")
+                new(Type.NUMBER, "1", inc.Increment("1")),
+                new(Type.EQUAL, "==", inc.Increment("==")),
+                new(Type.STRING, "1", inc.Increment("1"))
             });
 
             var result = interpreter.Run();
@@ -167,15 +177,16 @@ namespace Spelllang.Tests.Interpreter
         [Test]
         public void Equal_ComplexExpression_WithAssignment()
         {
+            var inc = new Incrementer();
             var interpreter = InterpreterTestUtils.BuildInterpreter(new List<Token>
             {
-                new(Type.IDENTIFIER, "A"),
-                new(Type.ASSIGN, "="),
-                new(Type.NUMBER, "10"),
-                new(Type.SEMICOLON, ";"),
-                new(Type.IDENTIFIER, "A"),
-                new(Type.EQUAL, "=="),
-                new(Type.NUMBER, "10")
+                new(Type.IDENTIFIER, "A", inc.Increment("A")),
+                new(Type.ASSIGN, "=", inc.Increment("=")),
+                new(Type.NUMBER, "10", inc.Increment("10")),
+                new(Type.SEMICOLON, ";", inc.Increment(";")),
+                new(Type.IDENTIFIER, "A", inc.Increment("A")),
+                new(Type.EQUAL, "==", inc.Increment("==")),
+                new(Type.NUMBER, "10", inc.Increment("10"))
             });
 
             var result = interpreter.Run();
@@ -186,15 +197,16 @@ namespace Spelllang.Tests.Interpreter
         [Test]
         public void Equal_ComplexExpression_WithAssignment_Fails()
         {
+            var inc = new Incrementer();
             var interpreter = InterpreterTestUtils.BuildInterpreter(new List<Token>
             {
-                new(Type.IDENTIFIER, "A"),
-                new(Type.ASSIGN, "="),
-                new(Type.NUMBER, "5"),
-                new(Type.SEMICOLON, ";"),
-                new(Type.IDENTIFIER, "A"),
-                new(Type.EQUAL, "=="),
-                new(Type.NUMBER, "10")
+                new(Type.IDENTIFIER, "A", inc.Increment("A")),
+                new(Type.ASSIGN, "=", inc.Increment("=")),
+                new(Type.NUMBER, "5", inc.Increment("5")),
+                new(Type.SEMICOLON, ";", inc.Increment(";")),
+                new(Type.IDENTIFIER, "A", inc.Increment("A")),
+                new(Type.EQUAL, "==", inc.Increment("==")),
+                new(Type.NUMBER, "10", inc.Increment("10"))
             });
 
             var result = interpreter.Run();
@@ -285,19 +297,21 @@ namespace Spelllang.Tests.Interpreter
         {
             get
             {
+                var inc = new Incrementer();
                 yield return new TestCaseData(
                     new List<Token>
                     {
-                        new(Type.NOT, "!"),
-                        new(Type.BOOLEAN, "true")
+                        new(Type.NOT, "!", inc.Increment(" ")),
+                        new(Type.BOOLEAN, "true", inc.Increment("true"))
                     },
                     false
                 ).SetName("Not prefix true");
+                inc.Reset();
                 yield return new TestCaseData(
                     new List<Token>
                     {
-                        new(Type.NOT, "!"),
-                        new(Type.BOOLEAN, "false")
+                        new(Type.NOT, "!", inc.Increment(" ")),
+                        new(Type.BOOLEAN, "false", inc.Increment("false"))
                     },
                     true
                 ).SetName("Not prefix false");
@@ -362,12 +376,13 @@ namespace Spelllang.Tests.Interpreter
         private static TestCaseData BuildSimpleInfixOperatorTestCase(string op, Type operatorType, int expectedResult)
         {
             {
+                var inc = new Incrementer();
                 return new TestCaseData(
                     new List<Token>
                     {
-                        new(Type.NUMBER, "3"),
-                        new(operatorType, op),
-                        new(Type.NUMBER, "3")
+                        new(Type.NUMBER, "3", inc.Increment("3")),
+                        new(operatorType, op, inc.Increment(op)),
+                        new(Type.NUMBER, "3", inc.Increment("3"))
                     },
                     expectedResult
                 );
@@ -383,9 +398,9 @@ namespace Spelllang.Tests.Interpreter
                 return new TestCaseData(
                     new List<Token>
                     {
-                        new(Type.NUMBER, numberA),
-                        new(operatorType, op),
-                        new(Type.NUMBER, numberB)
+                        new(Type.NUMBER, numberA, 0),
+                        new(operatorType, op, numberA.Length),
+                        new(Type.NUMBER, numberB, numberA.Length + op.Length)
                     },
                     expectedResult
                 );
@@ -401,9 +416,9 @@ namespace Spelllang.Tests.Interpreter
                 return new TestCaseData(
                     new List<Token>
                     {
-                        new(Type.BOOLEAN, boolA),
-                        new(operatorType, op),
-                        new(Type.BOOLEAN, boolB)
+                        new(Type.BOOLEAN, boolA, 0),
+                        new(operatorType, op, 4),
+                        new(Type.BOOLEAN, boolB, 4 + op.Length)
                     },
                     expectedResult
                 );
@@ -414,11 +429,12 @@ namespace Spelllang.Tests.Interpreter
             int expectedResult)
         {
             {
+                var inc = new Incrementer();
                 return new TestCaseData(
                     new List<Token>
                     {
-                        new(operatorType, op),
-                        new(Type.NUMBER, "3")
+                        new(operatorType, op, inc.Increment(op)),
+                        new(Type.NUMBER, "3", inc.Increment("3"))
                     },
                     expectedResult
                 );

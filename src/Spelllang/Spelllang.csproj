@@ -23,9 +23,5 @@
     </PropertyGroup>
 
     <!-- Add NuGet dependencies (if any) -->
-    <ItemGroup>
-        <!-- Example: Add NUnit for testing (if needed in the main library) -->
-        <!-- <PackageReference Include="NUnit" Version="3.13.3" PrivateAssets="all" /> -->
-    </ItemGroup>
 
 </Project>

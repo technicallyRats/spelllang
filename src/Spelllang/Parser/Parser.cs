@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Spelllang.AST;
-using Spelllang.Diagnostics;
 using Spelllang.Lexer;
 using Type = Spelllang.Lexer.Type;
 
@@ -33,6 +32,7 @@ namespace Spelllang.Parser
 
     public class Parser
     {
+        private readonly List<ParsingError> _parsingErrors = new();
         private readonly bool Done = false;
 
         private readonly TokenEnumerator LexerEnumerator;
@@ -117,6 +117,16 @@ namespace Spelllang.Parser
             return ProgramNode;
         }
 
+        public bool IsFaulty()
+        {
+            return _parsingErrors.Count > 0;
+        }
+
+        public void DisplayErrors(string sourceCode)
+        {
+            foreach (var error in _parsingErrors) Console.WriteLine(error.Show(sourceCode));
+        }
+
         private void Parse()
         {
             var statements = new List<IStatementNode>();
@@ -129,7 +139,7 @@ namespace Spelllang.Parser
             ProgramNode.SetStatements(statements);
         }
 
-        private IStatementNode ParseStatement()
+        private IStatementNode? ParseStatement()
         {
             var result = CurrentItemType() switch
             {
@@ -152,8 +162,8 @@ namespace Spelllang.Parser
                 PrefixParserFn.TryGetValue(LexerEnumerator.Current().Type, out var v) ? v : null;
             if (parsePrefixExpressionFn == null)
             {
-                SpelllangDiagnostics.Error("No prefix parser for type " + LexerEnumerator.Current().Type);
-                return null;
+                ReportError("No Prefix parser for this token", LexerEnumerator.Current());
+                return new NullExpression();
             }
 
             var leftExpression = parsePrefixExpressionFn();
@@ -163,7 +173,7 @@ namespace Spelllang.Parser
                 var infixParser = InfixParserFn.TryGetValue(LexerEnumerator.Peek().Type, out var value) ? value : null;
                 if (infixParser == null)
                 {
-                    SpelllangDiagnostics.Error("No infix parser for type " + LexerEnumerator.Peek().Type);
+                    ReportError("No Infix parser for this token", LexerEnumerator.Peek());
                     return leftExpression;
                 }
 
@@ -203,8 +213,8 @@ namespace Spelllang.Parser
             var value = ParseExpression(precedence);
             if (identifier is IdentifierExpression identifierExpression)
                 return new AssignExpression(identifierExpression.IdentifierName, value);
-            SpelllangDiagnostics.Error("Expected identifier node but got " + identifier);
-            return null;
+            ReportError("Expected identifier node instead", LexerEnumerator.Peek());
+            return new NullExpression();
         }
 
         private IExpressionNode ParseNullExpression()
@@ -279,8 +289,8 @@ namespace Spelllang.Parser
             var arguments = ParseExpressionList(Type.PARENTHESES_RIGHT);
             if (arguments.Count > 0 && !arguments.All(item => item != null && item is IdentifierExpression))
             {
-                SpelllangDiagnostics.Error("Expected identifiers as arguments but got " + arguments);
-                return null;
+                ReportError("Expected identifiers as arguments but got " + arguments, LexerEnumerator.Current());
+                return new NullStatement();
             }
 
             var argumentIdentifiers = arguments.Cast<IdentifierExpression>().ToList();
@@ -387,6 +397,11 @@ namespace Spelllang.Parser
         private bool CurrentItemTypeEquals(Type expected)
         {
             return CurrentItemType() == expected;
+        }
+
+        private void ReportError(string description, Token token)
+        {
+            _parsingErrors.Add(new ParsingError(token.StartIndex, token.Value.Length, description));
         }
     }
 }

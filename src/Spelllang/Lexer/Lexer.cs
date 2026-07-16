@@ -7,23 +7,22 @@ namespace Spelllang.Lexer
 {
     public class Lexer
     {
-        private int CurrentIndex;
+        private readonly string _input;
 
-        private readonly string Input;
-        private int StartIndex;
-
-        private readonly List<Token> TokenList = new();
+        private readonly List<Token> _tokenList = new();
+        private int _currentIndex;
+        private int _startIndex;
 
         public Lexer(string input)
         {
-            Input = input;
+            _input = input;
             _lex();
         }
 
         // TODO: adding a channel thingy probably is better...
         public TokenEnumerator GetEnumerator()
         {
-            return new TokenEnumerator(TokenList);
+            return new TokenEnumerator(_tokenList);
         }
 
         private void _lex()
@@ -33,49 +32,49 @@ namespace Spelllang.Lexer
             do
             {
                 currentStateFn = currentStateFn(this);
-            } while (TokenList.LastOrDefault().Type != Type.EOF);
+            } while (_tokenList.LastOrDefault().Type != Type.EOF);
         }
 
         public string Rest()
         {
-            return Input.Substring(CurrentIndex);
+            return _input.Substring(_currentIndex);
         }
 
         public void Emit(Type type)
         {
-            var value = Input.Substring(StartIndex, CurrentIndex - StartIndex);
+            var value = _input.Substring(_startIndex, _currentIndex - _startIndex);
             type = KeyWords.GetValueOrDefault(value, type);
-            var newToken = new Token(type, value);
-            TokenList.Add(newToken);
-            StartIndex = CurrentIndex;
+            var newToken = new Token(type, value, _startIndex);
+            _tokenList.Add(newToken);
+            _startIndex = _currentIndex;
         }
 
         public string? Peek()
         {
-            if (CurrentIndex >= Input.Length - 1) return null;
-            return char.ToString(Input[CurrentIndex + 1]);
+            if (_currentIndex >= _input.Length - 1) return null;
+            return char.ToString(_input[_currentIndex + 1]);
         }
 
         public string? Next()
         {
-            if (CurrentIndex >= Input.Length - 1)
+            if (_currentIndex >= _input.Length - 1)
             {
-                CurrentIndex = Input.Length;
+                _currentIndex = _input.Length;
                 return null;
             }
 
-            return char.ToString(Input[++CurrentIndex]);
+            return char.ToString(_input[++_currentIndex]);
         }
 
         public string? Current()
         {
-            if (CurrentIndex > Input.Length - 1) return null;
-            return char.ToString(Input[CurrentIndex]);
+            if (_currentIndex > _input.Length - 1) return null;
+            return char.ToString(_input[_currentIndex]);
         }
 
         public void Ignore()
         {
-            StartIndex = CurrentIndex;
+            _startIndex = _currentIndex;
         }
 
         public bool ReachedEnd()
