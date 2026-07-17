@@ -122,7 +122,7 @@ namespace Spelllang.Parser
             return _parsingErrors.Count > 0;
         }
 
-        public void DisplayErrors(string sourceCode)
+        public void DisplayErrors(string? sourceCode)
         {
             foreach (var error in _parsingErrors) Console.WriteLine(error.Show(sourceCode));
         }
@@ -278,7 +278,7 @@ namespace Spelllang.Parser
 
         private IStatementNode ParseFunctionStatement()
         {
-            LexerEnumerator.Next();
+            CheckedNext(new List<Type> { Type.PARENTHESES_LEFT, Type.IDENTIFIER });
             var functionName = FunctionStatement.ANONYMOUS_FUNCTION_NAME;
             if (CurrentItemTypeEquals(Type.IDENTIFIER))
             {
@@ -310,11 +310,11 @@ namespace Spelllang.Parser
 
         private IStatementNode ParseIfStatement()
         {
-            LexerEnumerator.Next();
+            CheckedNext(Type.PARENTHESES_LEFT);
             LexerEnumerator.Next();
             var condition = ParseExpression(Precedence.PRECEDENCE_LOWEST);
             // skip )
-            LexerEnumerator.Next();
+            CheckedNext(Type.PARENTHESES_RIGHT);
             // skip {
             LexerEnumerator.Next();
             var primary = ParseBlock();
@@ -331,15 +331,14 @@ namespace Spelllang.Parser
 
         private IStatementNode ParseWhileStatement()
         {
-            LexerEnumerator.Next();
+            CheckedNext(Type.PARENTHESES_LEFT);
             LexerEnumerator.Next();
             var condition = ParseExpression(Precedence.PRECEDENCE_LOWEST);
             // skip )
-            LexerEnumerator.Next();
+            CheckedNext(Type.PARENTHESES_RIGHT);
             // skip {
             LexerEnumerator.Next();
             var body = ParseBlock();
-            // TODO: This does not match if...why?
             return new WhileStatement(body, condition);
         }
 
@@ -350,20 +349,22 @@ namespace Spelllang.Parser
 
         private IStatementNode ParseImportStatement()
         {
-            LexerEnumerator.Next();
+            CheckedNext(new List<Type>
+            {
+                Type.IDENTIFIER, Type.STRING
+            }); // this allows strings, but I have never tested string literals here, oh well
             var importPath = LexerEnumerator.Current().Value; // assume this counts as identifier?
             var importName = "";
             if (PeekItemTypeEquals(Type.AS))
             {
                 LexerEnumerator.Next();
-                LexerEnumerator.Next();
+                CheckedNext(Type.IDENTIFIER);
                 importName = LexerEnumerator.Current().Value;
             }
 
             return new ImportStatement(importPath, importName);
         }
 
-        // TODO: This is clever and dumb...clever because it works, dumb because this has to jump through extra hoops due to my poorly designed API
         private ProgramNode ParseBlock()
         {
             if (CurrentItemTypeEquals(Type.BRACES_LEFT)) LexerEnumerator.Next();
@@ -402,6 +403,28 @@ namespace Spelllang.Parser
         private void ReportError(string description, Token token)
         {
             _parsingErrors.Add(new ParsingError(token.StartIndex, token.Value.Length, description));
+        }
+
+        private Token CheckedNext(Type expected)
+        {
+            if (!PeekItemTypeEquals(expected))
+                ReportError("Expected type " + expected + " but got " + LexerEnumerator.Peek().Type,
+                    LexerEnumerator.Peek());
+            // We advance anyway because this possibly catches additional errors
+            return LexerEnumerator.Next();
+        }
+
+        private Token CheckedNext(List<Type> expected)
+        {
+            if (!expected.Any(PeekItemTypeEquals))
+            {
+                var typeList = string.Join(" or ", expected);
+                ReportError("Expected type " + typeList + " but got " + LexerEnumerator.Peek().Type,
+                    LexerEnumerator.Peek());
+            }
+
+            // We advance anyway because this possibly catches additional errors
+            return LexerEnumerator.Next();
         }
     }
 }

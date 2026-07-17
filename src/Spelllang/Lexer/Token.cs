@@ -73,14 +73,14 @@ namespace Spelllang.Lexer
 
     public struct Token
     {
-        public Token(Type type, string value, long startIndex)
+        public Token(Type type, string value, int startIndex)
         {
             Type = type;
             Value = value;
             StartIndex = startIndex;
         }
 
-        public long StartIndex;
+        public int StartIndex;
 
         public Type Type { get; }
         public string Value { get; }
@@ -103,7 +103,7 @@ namespace Spelllang.Lexer
 
         private int CurrentIndex { get; set; }
 
-        private long GetMaxValidIndex()
+        private int GetMaxValidIndex()
         {
             return _tokenList.Last().StartIndex + _tokenList.Last().Value.Length;
         }
@@ -133,13 +133,6 @@ namespace Spelllang.Lexer
                 return new Token(Type.EOF, "", GetMaxValidIndex());
 
             return _tokenList[CurrentIndex + 1];
-        }
-
-        public bool MoveNext()
-        {
-            if (Next().Type == Type.EOF) return false;
-
-            return CurrentIndex >= _tokenList.Count - 1;
         }
     }
 }

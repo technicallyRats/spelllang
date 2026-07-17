@@ -286,28 +286,28 @@ namespace Spelllang.Tests.Parser
         [TestCaseSource(nameof(CallTestCases))]
         public void Parse_FunctionCall(List<Token> input, ProgramNode expected)
         {
-            ParsingTestUtils.AssertAst(ParsingTestUtils.Parse(input), expected);
+            ParsingTestUtils.AssertParserState(ParsingTestUtils.Parse(input), expected);
         }
 
         [Test]
         [TestCaseSource(nameof(WhileTestCases))]
         public void Parse_While(List<Token> input, ProgramNode expected)
         {
-            ParsingTestUtils.AssertAst(ParsingTestUtils.Parse(input), expected);
+            ParsingTestUtils.AssertParserState(ParsingTestUtils.Parse(input), expected);
         }
 
         [Test]
         [TestCaseSource(nameof(IfTestCases))]
         public void Parse_If(List<Token> input, ProgramNode expected)
         {
-            ParsingTestUtils.AssertAst(ParsingTestUtils.Parse(input), expected);
+            ParsingTestUtils.AssertParserState(ParsingTestUtils.Parse(input), expected);
         }
 
         [Test]
         [TestCaseSource(nameof(ImportTestCases))]
         public void Parse_Import(List<Token> input, ProgramNode expected)
         {
-            ParsingTestUtils.AssertAst(ParsingTestUtils.Parse(input), expected);
+            ParsingTestUtils.AssertParserState(ParsingTestUtils.Parse(input), expected);
         }
     }
 }

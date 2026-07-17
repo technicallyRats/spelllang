@@ -12,7 +12,8 @@ namespace Spelllang.Tests.Parser
             var sourceCode = "This this? trailing end";
             var actual = err.Show(sourceCode);
             var expected = @"This failed
-This this? trai";
+This this? trai
+     ^^^^^     ";
             Assert.That(actual, Is.EqualTo(expected));
         }
 
@@ -23,7 +24,8 @@ This this? trai";
             var sourceCode = "This this? trailing end";
             var actual = err.Show(sourceCode);
             var expected = @"This failed
-This this?";
+This this?
+^^^^^     ";
             Assert.That(actual, Is.EqualTo(expected));
         }
 
@@ -34,7 +36,8 @@ This this?";
             var sourceCode = "This this?";
             var actual = err.Show(sourceCode);
             var expected = @"This failed
-This this?";
+This this?
+     ^^^^^";
             Assert.That(actual, Is.EqualTo(expected));
         }
     }

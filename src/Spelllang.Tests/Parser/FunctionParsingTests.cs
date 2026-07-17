@@ -183,7 +183,7 @@ namespace Spelllang.Tests.Parser
         [TestCaseSource(nameof(FunctionTestCases))]
         public void Parse_Function(List<Token> input, ProgramNode expected)
         {
-            ParsingTestUtils.AssertAst(ParsingTestUtils.Parse(input), expected);
+            ParsingTestUtils.AssertParserState(ParsingTestUtils.Parse(input), expected);
         }
     }
 }

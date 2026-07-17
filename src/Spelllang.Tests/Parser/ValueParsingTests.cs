@@ -121,28 +121,28 @@ namespace Spelllang.Tests.Parser
         [TestCaseSource(nameof(NumberTestCases))]
         public void Parse_Numbers(List<Token> input, ProgramNode expected)
         {
-            ParsingTestUtils.AssertAst(ParsingTestUtils.Parse(input), expected);
+            ParsingTestUtils.AssertParserState(ParsingTestUtils.Parse(input), expected);
         }
 
         [Test]
         [TestCaseSource(nameof(BoolTestCases))]
         public void Parse_Bool(List<Token> input, ProgramNode expected)
         {
-            ParsingTestUtils.AssertAst(ParsingTestUtils.Parse(input), expected);
+            ParsingTestUtils.AssertParserState(ParsingTestUtils.Parse(input), expected);
         }
 
         [Test]
         [TestCaseSource(nameof(StringTestCases))]
         public void Parse_String(List<Token> input, ProgramNode expected)
         {
-            ParsingTestUtils.AssertAst(ParsingTestUtils.Parse(input), expected);
+            ParsingTestUtils.AssertParserState(ParsingTestUtils.Parse(input), expected);
         }
 
         [Test]
         [TestCaseSource(nameof(NullTestCases))]
         public void Parse_Null(List<Token> input, ProgramNode expected)
         {
-            ParsingTestUtils.AssertAst(ParsingTestUtils.Parse(input), expected);
+            ParsingTestUtils.AssertParserState(ParsingTestUtils.Parse(input), expected);
         }
     }
 }

@@ -52,7 +52,7 @@ namespace Spelllang.Tests.Parser
         [TestCaseSource(nameof(SimplePrefixTestCases))]
         public void Parse_PrefixInfix(List<Token> input, ProgramNode expected)
         {
-            ParsingTestUtils.AssertAst(ParsingTestUtils.Parse(input), expected);
+            ParsingTestUtils.AssertParserState(ParsingTestUtils.Parse(input), expected);
         }
 
         private static TestCaseData BuildSimpleInfixTestCase(string op, Type operatorType)
