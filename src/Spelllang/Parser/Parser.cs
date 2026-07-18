@@ -162,7 +162,8 @@ namespace Spelllang.Parser
                 PrefixParserFn.TryGetValue(LexerEnumerator.Current().Type, out var v) ? v : null;
             if (parsePrefixExpressionFn == null)
             {
-                ReportError("No Prefix parser for this token", LexerEnumerator.Current());
+                ReportError("No Prefix parser for this token " + LexerEnumerator.Current().Type,
+                    LexerEnumerator.Current());
                 return new NullExpression();
             }
 
@@ -173,7 +174,7 @@ namespace Spelllang.Parser
                 var infixParser = InfixParserFn.TryGetValue(LexerEnumerator.Peek().Type, out var value) ? value : null;
                 if (infixParser == null)
                 {
-                    ReportError("No Infix parser for this token", LexerEnumerator.Peek());
+                    ReportError("No Infix parser for this token " +LexerEnumerator.Peek().Type , LexerEnumerator.Peek());
                     return leftExpression;
                 }
 

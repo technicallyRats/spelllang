@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Spelllang.AST;
+using Spelllang.Diagnostics;
 
 namespace Spelllang.Interpreter.Importer
 {
@@ -15,8 +16,11 @@ namespace Spelllang.Interpreter.Importer
         private static string ResolveAndReadImport(string importPath, List<IImportResolver> priorityResolver)
         {
             foreach (var resolver in priorityResolver.Concat(Resolver))
+            {
+                SpelllangDiagnostics.Info("Checking resolver: " + resolver.Name());
                 if (resolver.Contains(importPath))
                     return resolver.Read(importPath);
+            }
 
             throw new ArgumentException("Unknown import");
         }

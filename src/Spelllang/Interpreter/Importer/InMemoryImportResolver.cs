@@ -11,6 +11,11 @@ namespace Spelllang.Interpreter.Importer
             _content = content;
         }
 
+        public string Name()
+        {
+            return "InMemoryResolver";
+        }
+
         public bool Contains(string importPath)
         {
             return _content.ContainsKey(importPath);

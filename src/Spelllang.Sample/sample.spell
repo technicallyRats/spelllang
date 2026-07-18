@@ -1,3 +1,5 @@
+import logging as logging
+
 myNumber = 1;
 
 function isOdd(num){
@@ -17,3 +19,5 @@ while (myNumber < 100){
 
 PRINT('HERE');
 myNumber;
+
+logging.greet('me');

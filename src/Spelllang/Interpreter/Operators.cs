@@ -1,5 +1,3 @@
-using System;
-using Spelllang.AST;
 using Spelllang.Diagnostics;
 
 namespace Spelllang.Interpreter
@@ -64,7 +62,8 @@ namespace Spelllang.Interpreter
         {
             if (left.GetType() != right.GetType())
             {
-                SpelllangDiagnostics.Error("For now only comparison between two variables of the same type are supported");
+                SpelllangDiagnostics.Error(
+                    "For now only comparison between two variables of the same type are supported");
                 return new RuntimeNull();
             }
 
@@ -79,6 +78,8 @@ namespace Spelllang.Interpreter
 
             if (left is IRuntimeValueBase<bool> leftBool && right is IRuntimeValueBase<bool> rightBool)
                 return new RuntimeBoolean(leftBool.GetValue() == rightBool.GetValue());
+
+            SpelllangDiagnostics.Error("For now equal between two variables of this type is not supported");
 
             return new RuntimeNull();
         }
@@ -97,6 +98,11 @@ namespace Spelllang.Interpreter
             if (left is IRuntimeValueBase<float> leftFloat && right is IRuntimeValueBase<float> rightFloat)
                 return new RuntimeFloat(leftFloat.GetValue() + rightFloat.GetValue());
 
+            if (left is IRuntimeValueBase<string> leftString && right is IRuntimeValueBase<string> rightString)
+                return new RuntimeString(leftString.GetValue() + rightString.GetValue());
+
+            SpelllangDiagnostics.Error("For now addition between two variables of this type is not supported");
+
             return new RuntimeNull();
         }
 
@@ -104,7 +110,8 @@ namespace Spelllang.Interpreter
         {
             if (left.GetType() != right.GetType())
             {
-                SpelllangDiagnostics.Error("For now only comparison between two variables of the same type are supported");
+                SpelllangDiagnostics.Error(
+                    "For now only comparison between two variables of the same type are supported");
                 return new RuntimeNull();
             }
 
@@ -114,6 +121,8 @@ namespace Spelllang.Interpreter
             if (left is IRuntimeValueBase<float> leftFloat && right is IRuntimeValueBase<float> rightFloat)
                 return new RuntimeFloat(leftFloat.GetValue() - rightFloat.GetValue());
 
+            SpelllangDiagnostics.Error("For now comparison between two variables of this type is not supported");
+
             return new RuntimeNull();
         }
 
@@ -121,7 +130,8 @@ namespace Spelllang.Interpreter
         {
             if (left.GetType() != right.GetType())
             {
-                SpelllangDiagnostics.Error("For now only multiplication between two variables of the same type is supported");
+                SpelllangDiagnostics.Error(
+                    "For now only multiplication between two variables of the same type is supported");
                 return new RuntimeNull();
             }
 
@@ -130,6 +140,8 @@ namespace Spelllang.Interpreter
 
             if (left is IRuntimeValueBase<float> leftFloat && right is IRuntimeValueBase<float> rightFloat)
                 return new RuntimeFloat(leftFloat.GetValue() * rightFloat.GetValue());
+
+            SpelllangDiagnostics.Error("For now multiplication between two variables of this type is not supported");
 
             return new RuntimeNull();
         }
@@ -148,6 +160,8 @@ namespace Spelllang.Interpreter
             if (left is IRuntimeValueBase<float> leftFloat && right is IRuntimeValueBase<float> rightFloat)
                 return new RuntimeFloat(leftFloat.GetValue() / rightFloat.GetValue());
 
+            SpelllangDiagnostics.Error("For now division between two variables of this type is not supported");
+
             return new RuntimeNull();
         }
 
@@ -165,6 +179,8 @@ namespace Spelllang.Interpreter
             if (left is IRuntimeValueBase<float> leftFloat && right is IRuntimeValueBase<float> rightFloat)
                 return new RuntimeFloat(leftFloat.GetValue() % rightFloat.GetValue());
 
+            SpelllangDiagnostics.Error("For now modulo between two variables of this type is not supported");
+
             return new RuntimeNull();
         }
 
@@ -172,7 +188,8 @@ namespace Spelllang.Interpreter
         {
             if (left.GetType() != right.GetType())
             {
-                SpelllangDiagnostics.Error("For now only comparison between two variables of the same type are supported");
+                SpelllangDiagnostics.Error(
+                    "For now only comparison between two variables of the same type are supported");
                 return new RuntimeNull();
             }
 
@@ -182,6 +199,8 @@ namespace Spelllang.Interpreter
             if (left is IRuntimeValueBase<float> leftFloat && right is IRuntimeValueBase<float> rightFloat)
                 return new RuntimeBoolean(leftFloat.GetValue() > rightFloat.GetValue());
 
+            SpelllangDiagnostics.Error("For now gt between two variables of this type is not supported");
+
             return new RuntimeNull();
         }
 
@@ -189,7 +208,8 @@ namespace Spelllang.Interpreter
         {
             if (left.GetType() != right.GetType())
             {
-                SpelllangDiagnostics.Error("For now only comparison between two variables of the same type are supported");
+                SpelllangDiagnostics.Error(
+                    "For now only comparison between two variables of the same type are supported");
                 return new RuntimeNull();
             }
 
@@ -199,6 +219,8 @@ namespace Spelllang.Interpreter
             if (left is IRuntimeValueBase<float> leftFloat && right is IRuntimeValueBase<float> rightFloat)
                 return new RuntimeBoolean(leftFloat.GetValue() < rightFloat.GetValue());
 
+            SpelllangDiagnostics.Error("For now lt between two variables of this type is not supported");
+
             return new RuntimeNull();
         }
 
@@ -206,12 +228,15 @@ namespace Spelllang.Interpreter
         {
             if (left.GetType() != right.GetType())
             {
-                SpelllangDiagnostics.Error("For now only comparison between two variables of the same type are supported");
+                SpelllangDiagnostics.Error(
+                    "For now only comparison between two variables of the same type are supported");
                 return new RuntimeNull();
             }
 
             if (left is IRuntimeValueBase<bool> leftBool && right is IRuntimeValueBase<bool> rightBool)
                 return new RuntimeBoolean(leftBool.GetValue() && rightBool.GetValue());
+
+            SpelllangDiagnostics.Error("For now and between two variables of this type is not supported");
 
             return new RuntimeBoolean(false);
         }
@@ -220,12 +245,15 @@ namespace Spelllang.Interpreter
         {
             if (left.GetType() != right.GetType())
             {
-                SpelllangDiagnostics.Error("For now only comparison between two variables of the same type are supported");
+                SpelllangDiagnostics.Error(
+                    "For now only comparison between two variables of the same type are supported");
                 return new RuntimeNull();
             }
 
             if (left is IRuntimeValueBase<bool> leftBool && right is IRuntimeValueBase<bool> rightBool)
                 return new RuntimeBoolean(leftBool.GetValue() || rightBool.GetValue());
+
+            SpelllangDiagnostics.Error("For now or between two variables of this type is not supported");
 
             return new RuntimeBoolean(false);
         }
@@ -238,7 +266,7 @@ namespace Spelllang.Interpreter
                 return new RuntimeFloat(+exprFloat.GetValue());
 
 
-            SpelllangDiagnostics.Error("Infix operation '+' not supported for " + expr.GetType().Name);
+            SpelllangDiagnostics.Error("Prefix operation '+' not supported for " + expr.GetType().Name);
 
             return new RuntimeNull();
         }
@@ -251,7 +279,7 @@ namespace Spelllang.Interpreter
                 return new RuntimeFloat(-exprFloat.GetValue());
 
 
-            SpelllangDiagnostics.Error("Infix operation '-' not supported for " + expr.GetType().Name);
+            SpelllangDiagnostics.Error("Prefix operation '-' not supported for " + expr.GetType().Name);
 
             return new RuntimeNull();
         }

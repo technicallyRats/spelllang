@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Spelllang.Builtins;
 using Spelllang.Interpreter;
+using Spelllang.Interpreter.Importer;
 using Spelllang.Lexer;
 using Spelllang.Parser;
 using Spelllang.Sample;
@@ -31,15 +32,29 @@ public class Program
         var p = new Parser(l);
         var root = p.GetRootProgram();
 
-        if (p.IsFaulty()) throw new Exception("Parsing failed, see above for details");
+        if (p.IsFaulty())
+        {
+            p.DisplayErrors(null);
+            throw new Exception("Parsing failed, see above for details");
+        }
 
         var builtins = new List<(string name, IRuntimeBuiltin value)>();
         builtins.Add(("PRINT", new PrintBuiltin()));
 
+        var providedLibrary = new Dictionary<string, string>
+        {
+            {
+                "logging", @"function greet(name) {
+PRINT('hello ' + name);
+}"
+            }
+        };
+        var resolvers = new List<IImportResolver> { new InMemoryImportResolver(providedLibrary) };
+
         Console.WriteLine("-- AST --");
         Console.WriteLine(root.ToReadableString());
 
-        var interpreter = new Interpreter(p, builtins);
+        var interpreter = new Interpreter(p, builtins, resolvers);
 
         Console.WriteLine("-- RUNTIME LOGS --");
         var result = interpreter.Run();
