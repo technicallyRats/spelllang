@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Spelllang.AST;
+using Spelllang.Diagnostics;
 using Spelllang.Lexer;
 using Type = Spelllang.Lexer.Type;
 
@@ -26,8 +27,6 @@ namespace Spelllang.Parser
         PRECEDENCE_PREFIX,
         PRECEDENCE_CALL,
         PRECEDENCE_INDEX,
-
-        PRECEDENCE_MAX
     }
 
     public class Parser
@@ -44,6 +43,12 @@ namespace Spelllang.Parser
 
         public Parser(Lexer.Lexer lexer)
         {
+            if (lexer.IsFaulty())
+            {
+                SpelllangDiagnostics.Error("I refuse to do this! I shall be fed appropriately");
+                return;
+            }
+
             Setup();
             LexerEnumerator = lexer.GetEnumerator();
             Parse();
@@ -174,7 +179,8 @@ namespace Spelllang.Parser
                 var infixParser = InfixParserFn.TryGetValue(LexerEnumerator.Peek().Type, out var value) ? value : null;
                 if (infixParser == null)
                 {
-                    ReportError("No Infix parser for this token " +LexerEnumerator.Peek().Type , LexerEnumerator.Peek());
+                    ReportError("No Infix parser for this token " + LexerEnumerator.Peek().Type,
+                        LexerEnumerator.Peek());
                     return leftExpression;
                 }
 

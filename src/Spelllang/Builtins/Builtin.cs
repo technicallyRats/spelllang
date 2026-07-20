@@ -8,28 +8,26 @@ namespace Spelllang.Builtins
     {
         bool CheckParamtypes();
         Type[] GetExpectedParameterTypes();
-        
-        IRuntimeVariableBase Call(List<IRuntimeVariableBase> parameters);
+
+        IRuntimeVariableBase Call(List<IRuntimeVariableBase?> parameters);
     }
-    
-    public static class BridgeValidator {
+
+    public static class BridgeValidator
+    {
         public static bool ParamsMatchExpectedTypes(IRuntimeBuiltin builtin, List<IRuntimeVariableBase> parameters)
         {
-            if (!builtin.CheckParamtypes())
-            {
-                return true;
-            }
+            if (!builtin.CheckParamtypes()) return true;
 
-            Type[] expectedTypes = builtin.GetExpectedParameterTypes();
+            var expectedTypes = builtin.GetExpectedParameterTypes();
 
             // Check if the number of parameters matches the expected types
             if (parameters.Count != expectedTypes.Length)
                 return false;
 
-            for (int i = 0; i < parameters.Count; i++)
+            for (var i = 0; i < parameters.Count; i++)
             {
-                Type expectedType = expectedTypes[i];
-                Type actualType = parameters[i].GetType();
+                var expectedType = expectedTypes[i];
+                var actualType = parameters[i].GetType();
 
                 // Check if the actual type matches the expected type
                 if (!actualType.Equals(expectedType))

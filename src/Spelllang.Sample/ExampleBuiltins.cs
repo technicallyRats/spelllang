@@ -8,21 +8,27 @@ namespace Spelllang.Sample
 {
     public struct PrintBuiltin : IRuntimeBuiltin
     {
-        public bool CheckParamtypes() => false;
-
-        public Type[] GetExpectedParameterTypes() => Array.Empty<Type>();
-
-        public IRuntimeVariableBase Call(List<IRuntimeVariableBase> parameters)
+        public bool CheckParamtypes()
         {
-            StringBuilder sb = new StringBuilder();
-            foreach (IRuntimeVariableBase param in parameters)
-            {
-                sb.Append(param.ToReadableString());
-            }
+            return false;
+        }
+
+        public Type[] GetExpectedParameterTypes()
+        {
+            return Array.Empty<Type>();
+        }
+
+        public IRuntimeVariableBase Call(List<IRuntimeVariableBase?> parameters)
+        {
+            var sb = new StringBuilder();
+            foreach (var param in parameters) sb.Append(param.ToReadableString());
             Console.WriteLine(sb.ToString());
             return new RuntimeNull();
         }
 
-        public string ToReadableString() => "Builtin print function";
+        public string ToReadableString()
+        {
+            return "Builtin print function";
+        }
     }
 }

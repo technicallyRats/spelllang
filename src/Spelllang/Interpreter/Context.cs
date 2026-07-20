@@ -20,7 +20,7 @@ namespace Spelllang.Interpreter
             foreach (var entry in builtins) Register(entry.name, entry.value);
         }
 
-        public void Register(string variableName, IRuntimeVariableBase value)
+        public void Register(string variableName, IRuntimeVariableBase? value)
         {
             _values[variableName] = value;
         }

@@ -7,13 +7,13 @@ namespace Spelllang.Tests.TestBuiltins
 {
     public class PrintCapturingBuiltin : IRuntimeBuiltin
     {
-        public int CallCount { get; private set; }
-        public List<IRuntimeVariableBase> LastArgs { get; private set; }
-
         public PrintCapturingBuiltin()
         {
             LastArgs = new List<IRuntimeVariableBase>();
         }
+
+        public int CallCount { get; private set; }
+        public List<IRuntimeVariableBase> LastArgs { get; private set; }
 
         public bool CheckParamtypes()
         {
@@ -25,7 +25,7 @@ namespace Spelllang.Tests.TestBuiltins
             return Array.Empty<Type>();
         }
 
-        public IRuntimeVariableBase Call(List<IRuntimeVariableBase> parameters)
+        public IRuntimeVariableBase Call(List<IRuntimeVariableBase?> parameters)
         {
             CallCount++;
             LastArgs = parameters;

@@ -2,12 +2,15 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Spelllang.Parser;
 
 namespace Spelllang.Lexer
 {
     public class Lexer
     {
         private readonly string _input;
+
+        private readonly List<LexerError> _lexerErrors = new();
 
         private readonly List<Token> _tokenList = new();
         private int _currentIndex;
@@ -44,6 +47,7 @@ namespace Spelllang.Lexer
         {
             var value = _input.Substring(_startIndex, _currentIndex - _startIndex);
             type = KeyWords.GetValueOrDefault(value, type);
+            if (type == Type.UNKNOWN) ReportError("Unknown token", value.Length);
             var newToken = new Token(type, value, _startIndex);
             _tokenList.Add(newToken);
             _startIndex = _currentIndex;
@@ -80,6 +84,16 @@ namespace Spelllang.Lexer
         public bool ReachedEnd()
         {
             return Current() == null;
+        }
+
+        private void ReportError(string description, int length)
+        {
+            _lexerErrors.Add(new LexerError(_currentIndex, length, description));
+        }
+
+        public bool IsFaulty()
+        {
+            return _lexerErrors.Count > 0;
         }
     }
 }

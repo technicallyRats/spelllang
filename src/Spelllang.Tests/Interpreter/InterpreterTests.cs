@@ -493,7 +493,7 @@ namespace Spelllang.Tests.Interpreter
             var parser = new Spelllang.Parser.Parser(lexer);
             var interpreter = new Spelllang.Interpreter.Interpreter(parser);
             parser.DisplayErrors(sourceCode);
-            Assert.That(_sw!.ToString().Trim(), Is.EqualTo("No Prefix parser for this token\n/5\n^"));
+            Assert.That(_sw!.ToString().Trim(), Is.EqualTo("No Prefix parser for this token DIVIDE\n/5\n^"));
             var result = interpreter.Run();
             Assert.That(result, Is.Null);
         }
