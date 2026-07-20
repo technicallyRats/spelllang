@@ -14,7 +14,7 @@ namespace Spelllang.Interpreter
             _enclosing = enclosing;
         }
 
-        public Context(Context enclosing, List<(string name, IRuntimeBuiltin value)> builtins)
+        public Context(Context? enclosing, List<(string name, IRuntimeBuiltin value)> builtins)
         {
             _enclosing = enclosing;
             foreach (var entry in builtins) Register(entry.name, entry.value);

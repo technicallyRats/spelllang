@@ -34,12 +34,12 @@ namespace Spelllang.Parser
         private readonly List<ParsingError> _parsingErrors = new();
         private readonly bool Done = false;
 
-        private readonly TokenEnumerator LexerEnumerator;
-        private Dictionary<Type, ParseInfixExpressionFn> InfixParserFn;
-        private Dictionary<Type, Precedence> PrecedenceMapping;
+        private readonly TokenEnumerator _lexerEnumerator;
+        private Dictionary<Type, ParseInfixExpressionFn> _infixParserFn;
+        private Dictionary<Type, Precedence> _precedenceMapping;
 
-        private Dictionary<Type, ParsePrefixExpressionFn> PrefixParserFn;
-        private ProgramNode ProgramNode;
+        private Dictionary<Type, ParsePrefixExpressionFn> _prefixParserFn;
+        private ProgramNode _programNode;
 
         public Parser(Lexer.Lexer lexer)
         {
@@ -50,20 +50,20 @@ namespace Spelllang.Parser
             }
 
             Setup();
-            LexerEnumerator = lexer.GetEnumerator();
+            _lexerEnumerator = lexer.GetEnumerator();
             Parse();
         }
 
         public Parser(TokenEnumerator lexerEnumerator)
         {
             Setup();
-            LexerEnumerator = lexerEnumerator;
+            _lexerEnumerator = lexerEnumerator;
             Parse();
         }
 
         private void Setup()
         {
-            PrefixParserFn = new Dictionary<Type, ParsePrefixExpressionFn>
+            _prefixParserFn = new Dictionary<Type, ParsePrefixExpressionFn>
             {
                 { Type.NUMBER, ParseNumberExpression },
                 { Type.STRING, ParseStringExpression },
@@ -76,7 +76,7 @@ namespace Spelllang.Parser
                 { Type.NOT, ParsePrefixExpression }
             };
 
-            InfixParserFn = new Dictionary<Type, ParseInfixExpressionFn>
+            _infixParserFn = new Dictionary<Type, ParseInfixExpressionFn>
             {
                 { Type.EQUAL, ParseInfixExpression },
                 { Type.NOT_EQUAL, ParseInfixExpression },
@@ -95,7 +95,7 @@ namespace Spelllang.Parser
                 { Type.PARENTHESES_LEFT, ParseCallExpression }
             };
 
-            PrecedenceMapping = new Dictionary<Type, Precedence>
+            _precedenceMapping = new Dictionary<Type, Precedence>
             {
                 { Type.ASSIGN, Precedence.PRECEDENCE_ASSIGN },
                 { Type.MINUS, Precedence.PRECEDENCE_STRICH },
@@ -114,12 +114,12 @@ namespace Spelllang.Parser
                 { Type.PARENTHESES_LEFT, Precedence.PRECEDENCE_CALL }
             };
 
-            ProgramNode = new ProgramNode();
+            _programNode = new ProgramNode();
         }
 
         public ProgramNode GetRootProgram()
         {
-            return ProgramNode;
+            return _programNode;
         }
 
         public bool IsFaulty()
@@ -141,7 +141,7 @@ namespace Spelllang.Parser
                 if (statement != null) statements.Add(statement);
             }
 
-            ProgramNode.SetStatements(statements);
+            _programNode.SetStatements(statements);
         }
 
         private IStatementNode? ParseStatement()
@@ -157,18 +157,18 @@ namespace Spelllang.Parser
                 _ => new ExpressionStatement(ParseExpression(Precedence.PRECEDENCE_LOWEST))
             };
 
-            LexerEnumerator.Next();
+            _lexerEnumerator.Next();
             return result;
         }
 
         private IExpressionNode ParseExpression(Precedence precedence)
         {
             var parsePrefixExpressionFn =
-                PrefixParserFn.TryGetValue(LexerEnumerator.Current().Type, out var v) ? v : null;
+                _prefixParserFn.TryGetValue(_lexerEnumerator.Current().Type, out var v) ? v : null;
             if (parsePrefixExpressionFn == null)
             {
-                ReportError("No Prefix parser for this token " + LexerEnumerator.Current().Type,
-                    LexerEnumerator.Current());
+                ReportError("No Prefix parser for this token " + _lexerEnumerator.Current().Type,
+                    _lexerEnumerator.Current());
                 return new NullExpression();
             }
 
@@ -176,15 +176,15 @@ namespace Spelllang.Parser
 
             while (!PeekItemTypeEquals(Type.EOF) && precedence < PeekItemPrecedence())
             {
-                var infixParser = InfixParserFn.TryGetValue(LexerEnumerator.Peek().Type, out var value) ? value : null;
+                var infixParser = _infixParserFn.TryGetValue(_lexerEnumerator.Peek().Type, out var value) ? value : null;
                 if (infixParser == null)
                 {
-                    ReportError("No Infix parser for this token " + LexerEnumerator.Peek().Type,
-                        LexerEnumerator.Peek());
+                    ReportError("No Infix parser for this token " + _lexerEnumerator.Peek().Type,
+                        _lexerEnumerator.Peek());
                     return leftExpression;
                 }
 
-                LexerEnumerator.Next();
+                _lexerEnumerator.Next();
 
                 leftExpression = infixParser(leftExpression);
             }
@@ -194,10 +194,10 @@ namespace Spelllang.Parser
 
         private IExpressionNode ParseInfixExpression(IExpressionNode left)
         {
-            var op = LexerEnumerator.Current().Value;
+            var op = _lexerEnumerator.Current().Value;
 
             var precedence = CurrItemPrecedence();
-            LexerEnumerator.Next();
+            _lexerEnumerator.Next();
 
             var right = ParseExpression(precedence);
 
@@ -206,8 +206,8 @@ namespace Spelllang.Parser
 
         private IExpressionNode ParsePrefixExpression()
         {
-            var op = LexerEnumerator.Current().Value;
-            LexerEnumerator.Next();
+            var op = _lexerEnumerator.Current().Value;
+            _lexerEnumerator.Next();
             var expression = ParseExpression(Precedence.PRECEDENCE_PREFIX);
             return new PrefixExpression(op, expression);
         }
@@ -215,12 +215,12 @@ namespace Spelllang.Parser
         private IExpressionNode ParseAssignExpression(IExpressionNode identifier)
         {
             var precedence = CurrItemPrecedence();
-            LexerEnumerator.Next();
+            _lexerEnumerator.Next();
 
             var value = ParseExpression(precedence);
             if (identifier is IdentifierExpression identifierExpression)
                 return new AssignExpression(identifierExpression.IdentifierName, value);
-            ReportError("Expected identifier node instead", LexerEnumerator.Peek());
+            ReportError("Expected identifier node instead", _lexerEnumerator.Peek());
             return new NullExpression();
         }
 
@@ -232,7 +232,7 @@ namespace Spelllang.Parser
         private IExpressionNode ParseNumberExpression()
         {
             // Remove _ for syntactic sugar
-            var rawValue = LexerEnumerator.Current().Value.Replace("_", "");
+            var rawValue = _lexerEnumerator.Current().Value.Replace("_", "");
 
             if (rawValue.Contains(".")) return new FloatExpression(float.Parse(rawValue, CultureInfo.InvariantCulture));
 
@@ -241,17 +241,17 @@ namespace Spelllang.Parser
 
         private IExpressionNode ParseStringExpression()
         {
-            return new StringExpression(LexerEnumerator.Current().Value);
+            return new StringExpression(_lexerEnumerator.Current().Value);
         }
 
         private IExpressionNode ParseBooleanExpression()
         {
-            return new BooleanExpression(LexerEnumerator.Current().Value == "true");
+            return new BooleanExpression(_lexerEnumerator.Current().Value == "true");
         }
 
         private IExpressionNode ParseIdentifierExpression()
         {
-            return new IdentifierExpression(LexerEnumerator.Current().Value);
+            return new IdentifierExpression(_lexerEnumerator.Current().Value);
         }
 
         private IExpressionNode ParseCallExpression(IExpressionNode left)
@@ -264,15 +264,15 @@ namespace Spelllang.Parser
         {
             var result = new List<IExpressionNode>();
 
-            LexerEnumerator.Next();
+            _lexerEnumerator.Next();
 
             if (CurrentItemTypeEquals(terminatingType)) return result;
 
             while (!CurrentItemTypeEquals(terminatingType))
             {
                 result.Add(ParseExpression(Precedence.PRECEDENCE_LOWEST));
-                LexerEnumerator.Next();
-                if (CurrentItemTypeEquals(Type.COMMA)) LexerEnumerator.Next();
+                _lexerEnumerator.Next();
+                if (CurrentItemTypeEquals(Type.COMMA)) _lexerEnumerator.Next();
             }
 
             return result;
@@ -289,27 +289,27 @@ namespace Spelllang.Parser
             var functionName = FunctionStatement.ANONYMOUS_FUNCTION_NAME;
             if (CurrentItemTypeEquals(Type.IDENTIFIER))
             {
-                functionName = LexerEnumerator.Current().Value;
-                LexerEnumerator.Next();
+                functionName = _lexerEnumerator.Current().Value;
+                _lexerEnumerator.Next();
             }
 
             var arguments = ParseExpressionList(Type.PARENTHESES_RIGHT);
             if (arguments.Count > 0 && !arguments.All(item => item != null && item is IdentifierExpression))
             {
-                ReportError("Expected identifiers as arguments but got " + arguments, LexerEnumerator.Current());
+                ReportError("Expected identifiers as arguments but got " + arguments, _lexerEnumerator.Current());
                 return new NullStatement();
             }
 
             var argumentIdentifiers = arguments.Cast<IdentifierExpression>().ToList();
 
-            LexerEnumerator.Next();
+            _lexerEnumerator.Next();
             var functionBody = ParseBlock();
             return new FunctionStatement(functionName, argumentIdentifiers, functionBody);
         }
 
         private IStatementNode ParseReturnStatement()
         {
-            LexerEnumerator.Next();
+            _lexerEnumerator.Next();
             if (CurrentItemTypeEquals(Type.BRACES_RIGHT) || CurrentItemTypeEquals(Type.SEMICOLON))
                 return new ReturnStatement(new NullExpression());
             return new ReturnStatement(ParseExpression(Precedence.PRECEDENCE_LOWEST));
@@ -318,18 +318,18 @@ namespace Spelllang.Parser
         private IStatementNode ParseIfStatement()
         {
             CheckedNext(Type.PARENTHESES_LEFT);
-            LexerEnumerator.Next();
+            _lexerEnumerator.Next();
             var condition = ParseExpression(Precedence.PRECEDENCE_LOWEST);
             // skip )
             CheckedNext(Type.PARENTHESES_RIGHT);
             // skip {
-            LexerEnumerator.Next();
+            _lexerEnumerator.Next();
             var primary = ParseBlock();
             var secondary = new ProgramNode();
-            LexerEnumerator.Next();
+            _lexerEnumerator.Next();
             if (CurrentItemTypeEquals(Type.ELSE))
             {
-                LexerEnumerator.Next();
+                _lexerEnumerator.Next();
                 secondary = ParseBlock();
             }
 
@@ -339,12 +339,12 @@ namespace Spelllang.Parser
         private IStatementNode ParseWhileStatement()
         {
             CheckedNext(Type.PARENTHESES_LEFT);
-            LexerEnumerator.Next();
+            _lexerEnumerator.Next();
             var condition = ParseExpression(Precedence.PRECEDENCE_LOWEST);
             // skip )
             CheckedNext(Type.PARENTHESES_RIGHT);
             // skip {
-            LexerEnumerator.Next();
+            _lexerEnumerator.Next();
             var body = ParseBlock();
             return new WhileStatement(body, condition);
         }
@@ -360,13 +360,13 @@ namespace Spelllang.Parser
             {
                 Type.IDENTIFIER, Type.STRING
             }); // this allows strings, but I have never tested string literals here, oh well
-            var importPath = LexerEnumerator.Current().Value; // assume this counts as identifier?
+            var importPath = _lexerEnumerator.Current().Value; // assume this counts as identifier?
             var importName = "";
             if (PeekItemTypeEquals(Type.AS))
             {
-                LexerEnumerator.Next();
+                _lexerEnumerator.Next();
                 CheckedNext(Type.IDENTIFIER);
-                importName = LexerEnumerator.Current().Value;
+                importName = _lexerEnumerator.Current().Value;
             }
 
             return new ImportStatement(importPath, importName);
@@ -374,32 +374,32 @@ namespace Spelllang.Parser
 
         private ProgramNode ParseBlock()
         {
-            if (CurrentItemTypeEquals(Type.BRACES_LEFT)) LexerEnumerator.Next();
-            return new Parser(LexerEnumerator).GetRootProgram();
+            if (CurrentItemTypeEquals(Type.BRACES_LEFT)) _lexerEnumerator.Next();
+            return new Parser(_lexerEnumerator).GetRootProgram();
         }
 
         private Precedence CurrItemPrecedence()
         {
-            return PrecedenceMapping.TryGetValue(LexerEnumerator.Current().Type, out var value)
+            return _precedenceMapping.TryGetValue(_lexerEnumerator.Current().Type, out var value)
                 ? value
                 : Precedence.PRECEDENCE_LOWEST;
         }
 
         private Precedence PeekItemPrecedence()
         {
-            return PrecedenceMapping.TryGetValue(LexerEnumerator.Peek().Type, out var value)
+            return _precedenceMapping.TryGetValue(_lexerEnumerator.Peek().Type, out var value)
                 ? value
                 : Precedence.PRECEDENCE_LOWEST;
         }
 
         private bool PeekItemTypeEquals(Type expected)
         {
-            return LexerEnumerator.Peek().Type == expected;
+            return _lexerEnumerator.Peek().Type == expected;
         }
 
         private Type CurrentItemType()
         {
-            return LexerEnumerator.Current().Type;
+            return _lexerEnumerator.Current().Type;
         }
 
         private bool CurrentItemTypeEquals(Type expected)
@@ -415,10 +415,10 @@ namespace Spelllang.Parser
         private Token CheckedNext(Type expected)
         {
             if (!PeekItemTypeEquals(expected))
-                ReportError("Expected type " + expected + " but got " + LexerEnumerator.Peek().Type,
-                    LexerEnumerator.Peek());
+                ReportError("Expected type " + expected + " but got " + _lexerEnumerator.Peek().Type,
+                    _lexerEnumerator.Peek());
             // We advance anyway because this possibly catches additional errors
-            return LexerEnumerator.Next();
+            return _lexerEnumerator.Next();
         }
 
         private Token CheckedNext(List<Type> expected)
@@ -426,12 +426,12 @@ namespace Spelllang.Parser
             if (!expected.Any(PeekItemTypeEquals))
             {
                 var typeList = string.Join(" or ", expected);
-                ReportError("Expected type " + typeList + " but got " + LexerEnumerator.Peek().Type,
-                    LexerEnumerator.Peek());
+                ReportError("Expected type " + typeList + " but got " + _lexerEnumerator.Peek().Type,
+                    _lexerEnumerator.Peek());
             }
 
             // We advance anyway because this possibly catches additional errors
-            return LexerEnumerator.Next();
+            return _lexerEnumerator.Next();
         }
     }
 }

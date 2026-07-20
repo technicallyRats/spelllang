@@ -8,6 +8,21 @@ namespace Spelllang.Interpreter
         string ToReadableString();
     }
 
+    public struct RuntimeError : IRuntimeVariableBase
+    {
+        public string Reason;
+
+        public RuntimeError(string reason)
+        {
+            Reason = reason;
+        }
+
+        public string ToReadableString()
+        {
+            return "Error";
+        }
+    }
+
     public interface IRuntimeValueBase<T> : IRuntimeVariableBase
     {
         T GetValue();

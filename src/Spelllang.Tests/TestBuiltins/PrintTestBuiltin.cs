@@ -18,7 +18,7 @@ namespace Spelllang.Sample
             return Array.Empty<Type>();
         }
 
-        public IRuntimeVariableBase Call(List<IRuntimeVariableBase?> parameters)
+        public IRuntimeVariableBase Call(List<IRuntimeVariableBase> parameters)
         {
             var sb = new StringBuilder();
             foreach (var param in parameters) sb.Append(param.ToReadableString());

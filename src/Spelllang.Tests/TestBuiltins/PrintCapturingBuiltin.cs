@@ -25,7 +25,7 @@ namespace Spelllang.Tests.TestBuiltins
             return Array.Empty<Type>();
         }
 
-        public IRuntimeVariableBase Call(List<IRuntimeVariableBase?> parameters)
+        public IRuntimeVariableBase Call(List<IRuntimeVariableBase> parameters)
         {
             CallCount++;
             LastArgs = parameters;

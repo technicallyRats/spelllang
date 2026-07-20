@@ -9,7 +9,7 @@ namespace Spelllang.Builtins
         bool CheckParamtypes();
         Type[] GetExpectedParameterTypes();
 
-        IRuntimeVariableBase Call(List<IRuntimeVariableBase?> parameters);
+        IRuntimeVariableBase Call(List<IRuntimeVariableBase> parameters);
     }
 
     public static class BridgeValidator
