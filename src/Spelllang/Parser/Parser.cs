@@ -26,15 +26,14 @@ namespace Spelllang.Parser
         PRECEDENCE_PUNKT,
         PRECEDENCE_PREFIX,
         PRECEDENCE_CALL,
-        PRECEDENCE_INDEX,
+        PRECEDENCE_INDEX
     }
 
     public class Parser
     {
+        private readonly TokenEnumerator _lexerEnumerator;
         private readonly List<ParsingError> _parsingErrors = new();
         private readonly bool Done = false;
-
-        private readonly TokenEnumerator _lexerEnumerator;
         private Dictionary<Type, ParseInfixExpressionFn> _infixParserFn;
         private Dictionary<Type, Precedence> _precedenceMapping;
 
@@ -73,7 +72,8 @@ namespace Spelllang.Parser
                 { Type.NULL, ParseNullExpression },
                 { Type.MINUS, ParsePrefixExpression },
                 { Type.PLUS, ParsePrefixExpression },
-                { Type.NOT, ParsePrefixExpression }
+                { Type.NOT, ParsePrefixExpression },
+                { Type.BRACKETS_LEFT, ParseListExpression }
             };
 
             _infixParserFn = new Dictionary<Type, ParseInfixExpressionFn>
@@ -92,7 +92,8 @@ namespace Spelllang.Parser
                 { Type.AND, ParseInfixExpression },
                 { Type.OR, ParseInfixExpression },
                 { Type.ASSIGN, ParseAssignExpression },
-                { Type.PARENTHESES_LEFT, ParseCallExpression }
+                { Type.PARENTHESES_LEFT, ParseCallExpression },
+                { Type.BRACKETS_LEFT, ParseIndexExpression }
             };
 
             _precedenceMapping = new Dictionary<Type, Precedence>
@@ -111,7 +112,8 @@ namespace Spelllang.Parser
                 { Type.GTE, Precedence.PRECEDENCE_COMPARE },
                 { Type.LT, Precedence.PRECEDENCE_COMPARE },
                 { Type.LTE, Precedence.PRECEDENCE_COMPARE },
-                { Type.PARENTHESES_LEFT, Precedence.PRECEDENCE_CALL }
+                { Type.PARENTHESES_LEFT, Precedence.PRECEDENCE_CALL },
+                { Type.BRACKETS_LEFT, Precedence.PRECEDENCE_INDEX }
             };
 
             _programNode = new ProgramNode();
@@ -176,7 +178,9 @@ namespace Spelllang.Parser
 
             while (!PeekItemTypeEquals(Type.EOF) && precedence < PeekItemPrecedence())
             {
-                var infixParser = _infixParserFn.TryGetValue(_lexerEnumerator.Peek().Type, out var value) ? value : null;
+                var infixParser = _infixParserFn.TryGetValue(_lexerEnumerator.Peek().Type, out var value)
+                    ? value
+                    : null;
                 if (infixParser == null)
                 {
                     ReportError("No Infix parser for this token " + _lexerEnumerator.Peek().Type,
@@ -281,6 +285,18 @@ namespace Spelllang.Parser
         private IExpressionNode ParseSemicolonExpression()
         {
             return new SemicolonExpression();
+        }
+
+        private IExpressionNode ParseListExpression()
+        {
+            var content = ParseExpressionList(Type.BRACKETS_RIGHT);
+            return new ListExpression(content);
+        }
+
+        private IExpressionNode ParseIndexExpression(IExpressionNode left)
+        {
+            var content = ParseExpression(Precedence.PRECEDENCE_INDEX);
+            return new IndexExpression(left, content);
         }
 
         private IStatementNode ParseFunctionStatement()

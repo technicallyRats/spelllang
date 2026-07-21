@@ -362,6 +362,41 @@ public struct CallExpression : IExpressionNode
     }
 }
 
+public struct ListExpression : IExpressionNode
+{
+    public List<IExpressionNode> Content { get; }
+
+    public ListExpression(List<IExpressionNode> content)
+    {
+        Content = content;
+    }
+
+    public string ToReadableString()
+    {
+        var sb = new StringBuilder();
+        foreach (var element in Content) sb.Append(element.ToReadableString());
+        return sb.ToString();
+    }
+}
+
+public struct IndexExpression : IExpressionNode
+{
+    public IExpressionNode Left { get; }
+
+    public IExpressionNode Value { get; }
+
+    public IndexExpression(IExpressionNode left, IExpressionNode value)
+    {
+        Left = left;
+        Value = value;
+    }
+
+    public string ToReadableString()
+    {
+        return $"Index {Left.ToReadableString()} at {Value.ToReadableString()}";
+    }
+}
+
 public struct ExpressionStatement : IStatementNode
 {
     public IExpressionNode Expression { get; }
