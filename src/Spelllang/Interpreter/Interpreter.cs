@@ -60,6 +60,7 @@ namespace Spelllang.Interpreter
 
                 result = RunNode(statement, context);
                 if (statement is ReturnStatement or BreakStatement) return (result, true);
+                if (result is RuntimeError) return (result, true);
             }
 
             return (result, false);

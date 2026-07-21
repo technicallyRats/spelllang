@@ -10,7 +10,7 @@ namespace Spelllang.Interpreter
 
     public struct RuntimeError : IRuntimeVariableBase
     {
-        public string Reason;
+        private string Reason { get; }
 
         public RuntimeError(string reason)
         {
@@ -20,6 +20,11 @@ namespace Spelllang.Interpreter
         public string ToReadableString()
         {
             return "Error";
+        }
+
+        public string GetReason()
+        {
+            return Reason;
         }
     }
 

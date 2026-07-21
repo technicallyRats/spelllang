@@ -77,5 +77,11 @@ namespace Spelllang.Tests.Interpreter
         {
             Assert.That(actual, Is.InstanceOf<RuntimeNull>());
         }
+
+        public static void AssertRuntimeError(IRuntimeVariableBase actual, string expected)
+        {
+            Assert.That(actual, Is.InstanceOf<RuntimeError>());
+            Assert.That(((RuntimeError)actual).GetReason(), Is.EqualTo(expected));
+        }
     }
 }

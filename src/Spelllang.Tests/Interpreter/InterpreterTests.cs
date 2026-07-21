@@ -175,7 +175,7 @@ namespace Spelllang.Tests.Interpreter
         }
 
         [Test]
-        public void UnassignedIdentifier_ReturnsNull()
+        public void UnassignedIdentifier_ReturnsError()
         {
             var inc = new Incrementer();
             var interpreter = InterpreterTestUtils.BuildInterpreter(new List<Token>
@@ -185,7 +185,7 @@ namespace Spelllang.Tests.Interpreter
 
             var result = interpreter.Run();
 
-            Assert.That(result, Is.Null);
+            InterpreterTestUtils.AssertRuntimeError(result, "Unknown variable UNDEFINED_VAR");
         }
 
         [Test]
@@ -248,7 +248,7 @@ namespace Spelllang.Tests.Interpreter
         }
 
         [Test]
-        public void UnknownIdentifierInCall_ReturnsNull()
+        public void UnknownIdentifierInCall_ReturnsError()
         {
             var inc = new Incrementer();
             var interpreter = InterpreterTestUtils.BuildInterpreter(new List<Token>
@@ -260,7 +260,7 @@ namespace Spelllang.Tests.Interpreter
 
             var result = interpreter.Run();
 
-            InterpreterTestUtils.AssertRuntimeNull(result);
+            InterpreterTestUtils.AssertRuntimeError(result, "Unexpected resolution for function call: Error");
         }
 
         [Test]
