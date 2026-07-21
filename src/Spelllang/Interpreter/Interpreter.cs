@@ -153,6 +153,20 @@ namespace Spelllang.Interpreter
                 case IdentifierExpression identifierExpression:
                     return context.Retrieve(identifierExpression.IdentifierName) ??
                            new RuntimeError($"Unknown variable {identifierExpression.IdentifierName}");
+                case ListExpression listExpression:
+                    var content = new List<IRuntimeVariableBase>(listExpression.Content.Count);
+                    foreach (var c in listExpression.Content)
+                    {
+                        content.Add(RunExpression(c, context));
+                        if (content.Last() is RuntimeError) return content.Last();
+                    }
+
+                    return new RuntimeList(content);
+                case IndexExpression indexExpression:
+                    var left = RunExpression(indexExpression.Left, context);
+                    if (left is RuntimeList runtimeList)
+                        return runtimeList.Index(RunExpression(indexExpression.Value, context));
+                    return new RuntimeError($"Only lists can be indexed (Tried to index {left.ToReadableString()})");
                 default:
                     SpelllangDiagnostics.Error("Unknown expression type " + expression);
                     return new RuntimeError();

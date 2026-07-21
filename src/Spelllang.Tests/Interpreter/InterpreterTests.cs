@@ -260,7 +260,8 @@ namespace Spelllang.Tests.Interpreter
 
             var result = interpreter.Run();
 
-            InterpreterTestUtils.AssertRuntimeError(result, "Unexpected resolution for function call: Error");
+            InterpreterTestUtils.AssertRuntimeError(result,
+                "Unexpected resolution for function call: Error Unknown variable NONEXISTENT");
         }
 
         [Test]

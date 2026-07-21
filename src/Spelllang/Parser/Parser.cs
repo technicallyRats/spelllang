@@ -295,7 +295,9 @@ namespace Spelllang.Parser
 
         private IExpressionNode ParseIndexExpression(IExpressionNode left)
         {
+            _lexerEnumerator.Next();
             var content = ParseExpression(Precedence.PRECEDENCE_INDEX);
+            CheckedNext(Type.BRACKETS_RIGHT);
             return new IndexExpression(left, content);
         }
 

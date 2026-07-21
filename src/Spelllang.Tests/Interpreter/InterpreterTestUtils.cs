@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using Spelllang.Builtins;
 using Spelllang.Interpreter;
@@ -82,6 +83,15 @@ namespace Spelllang.Tests.Interpreter
         {
             Assert.That(actual, Is.InstanceOf<RuntimeError>());
             Assert.That(((RuntimeError)actual).GetReason(), Is.EqualTo(expected));
+        }
+
+        public static void AssertRuntimeList(IRuntimeVariableBase actual, List<IRuntimeVariableBase> expected)
+        {
+            Assert.That(actual, Is.InstanceOf<RuntimeList>());
+            Assert.That(((RuntimeList)actual).GetContent().Count, Is.EqualTo(expected.Count));
+            foreach (var idx in Enumerable.Range(0, expected.Count))
+                Assert.That(((RuntimeList)actual).GetContent()[idx].ToReadableString(),
+                    Is.EqualTo(expected[idx].ToReadableString()));
         }
     }
 }

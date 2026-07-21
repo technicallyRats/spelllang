@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Spelllang.Diagnostics;
 
 namespace Spelllang.Interpreter
@@ -100,6 +101,14 @@ namespace Spelllang.Interpreter
 
             if (left is IRuntimeValueBase<string> leftString && right is IRuntimeValueBase<string> rightString)
                 return new RuntimeString(leftString.GetValue() + rightString.GetValue());
+
+            if (left is RuntimeList leftList && right is RuntimeList rightList)
+            {
+                // TODO: This is slow
+                var mergedList = new List<IRuntimeVariableBase>(leftList.GetContent());
+                mergedList.AddRange(rightList.GetContent());
+                return new RuntimeList(mergedList);
+            }
 
             SpelllangDiagnostics.Error("For now addition between two variables of this type is not supported");
 
