@@ -25,6 +25,8 @@ namespace Spelllang.Lexer
         PARENTHESES_RIGHT,
         BRACES_LEFT,
         BRACES_RIGHT,
+        BRACKETS_LEFT,
+        BRACKETS_RIGHT,
         COMMA,
         NUMBER,
         STRING,

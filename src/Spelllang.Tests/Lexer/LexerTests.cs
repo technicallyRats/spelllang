@@ -241,9 +241,55 @@ namespace Spelllang.Tests.Lexer
             }
         }
 
+        public static IEnumerable ListTestCases
+        {
+            get
+            {
+                {
+                    var inc = new Incrementer();
+                    yield return new TestCaseData(
+                        "[1,2,3]",
+                        new List<Token>
+                        {
+                            new(Type.BRACKETS_LEFT, "[", inc.Increment("]")),
+                            new(Type.NUMBER, "1", inc.Increment("1")),
+                            new(Type.COMMA, ",", inc.Increment(",")),
+                            new(Type.NUMBER, "2", inc.Increment("2")),
+                            new(Type.COMMA, ",", inc.Increment(",")),
+                            new(Type.NUMBER, "3", inc.Increment("3")),
+                            new(Type.BRACKETS_RIGHT, "]", inc.Increment("["))
+                        }
+                    ).SetName("Simple list");
+                }
+                {
+                    var inc = new Incrementer();
+                    yield return new TestCaseData(
+                        "[[],[]]",
+                        new List<Token>
+                        {
+                            new(Type.BRACKETS_LEFT, "[", inc.Increment("[")),
+                            new(Type.BRACKETS_LEFT, "[", inc.Increment("[")),
+                            new(Type.BRACKETS_RIGHT, "]", inc.Increment("]")),
+                            new(Type.COMMA, ",", inc.Increment(",")),
+                            new(Type.BRACKETS_LEFT, "[", inc.Increment("[")),
+                            new(Type.BRACKETS_RIGHT, "]", inc.Increment("]")),
+                            new(Type.BRACKETS_RIGHT, "]", inc.Increment("]"))
+                        }
+                    ).SetName("Empty nested list");
+                }
+            }
+        }
+
         [Test]
         [TestCaseSource(nameof(WhileTestCases))]
         public void Lex_While(string input, List<Token> expected)
+        {
+            AssertTokenList(Lex(input), expected);
+        }
+
+        [Test]
+        [TestCaseSource(nameof(ListTestCases))]
+        public void Lex_List(string input, List<Token> expected)
         {
             AssertTokenList(Lex(input), expected);
         }

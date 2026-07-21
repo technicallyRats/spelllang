@@ -57,6 +57,10 @@ namespace Spelllang.Lexer
                     return BuildSingleEmitStateFn(Type.BRACES_LEFT);
                 case "}":
                     return BuildSingleEmitStateFn(Type.BRACES_RIGHT);
+                case "[":
+                    return BuildSingleEmitStateFn(Type.BRACKETS_LEFT);
+                case "]":
+                    return BuildSingleEmitStateFn(Type.BRACKETS_RIGHT);
                 case "=":
                     return BuildConditionalEmitStateFn("=", Type.EQUAL, Type.ASSIGN);
                 case "!":
@@ -78,7 +82,7 @@ namespace Spelllang.Lexer
             return LexLine;
         }
 
-        public static StateFn BuildSingleEmitStateFn(Type type)
+        private static StateFn BuildSingleEmitStateFn(Type type)
         {
             return lexer =>
             {
@@ -88,7 +92,7 @@ namespace Spelllang.Lexer
             };
         }
 
-        public static StateFn BuildConditionalEmitStateFn(string conditional, Type onMatchType, Type noMatchType)
+        private static StateFn BuildConditionalEmitStateFn(string conditional, Type onMatchType, Type noMatchType)
         {
             return lexer =>
             {
