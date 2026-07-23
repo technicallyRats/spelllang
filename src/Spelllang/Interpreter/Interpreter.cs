@@ -85,7 +85,8 @@ namespace Spelllang.Interpreter
                         new RuntimeFunction(functionStatement.Program,
                             functionStatement.ArgumentIdentifiers.Select(identifier => identifier.IdentifierName)
                                 .ToList());
-                    if (!functionStatement.isAnonymous()) context.Register(functionStatement.FunctionName, function);
+                    if (!functionStatement.isAnonymous())
+                        context.Register(functionStatement.FunctionName, function);
                     return function;
                 case IfStatement ifStatement:
                     var test = RunExpression(ifStatement.Condition, context);
@@ -176,10 +177,10 @@ namespace Spelllang.Interpreter
         private IRuntimeVariableBase RunFunction(RuntimeFunction program, CallExpression callNode, Context context)
         {
             var callContext = context.Enclose();
-            var arguments = new List<IRuntimeVariableBase>();
             for (var i = 0; i < Math.Max(callNode.Arguments.Count, program.GetArgumentNames().Count); i++)
                 // This will fail if there is an argument mismatch. Good.
-                callContext.Register(program.GetArgumentNames()[i], RunExpression(callNode.Arguments[i], context));
+                callContext.Register(program.GetArgumentNames()[i],
+                    RunExpression(callNode.Arguments[i], context));
             return RunProgram(program.GetValue(), callContext).result;
         }
 

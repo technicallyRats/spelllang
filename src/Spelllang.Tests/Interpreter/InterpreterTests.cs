@@ -185,7 +185,8 @@ namespace Spelllang.Tests.Interpreter
 
             var result = interpreter.Run();
 
-            InterpreterTestUtils.AssertRuntimeError(result, "Unknown variable UNDEFINED_VAR");
+            InterpreterTestUtils.AssertRuntimeError(result,
+                "Tried retrieving unknown variable UNDEFINED_VAR (UNDEFINED_VAR)");
         }
 
         [Test]
@@ -261,7 +262,7 @@ namespace Spelllang.Tests.Interpreter
             var result = interpreter.Run();
 
             InterpreterTestUtils.AssertRuntimeError(result,
-                "Unexpected resolution for function call: Error Unknown variable NONEXISTENT");
+                "Unexpected resolution for function call: Error Tried retrieving unknown variable NONEXISTENT (NONEXISTENT)");
         }
 
         [Test]

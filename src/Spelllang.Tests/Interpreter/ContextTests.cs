@@ -1,31 +1,36 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
 using NUnit.Framework;
+using Spelllang.Builtins;
 using Spelllang.Interpreter;
+using Spelllang.Tests.TestBuiltins;
 
 namespace Spelllang.Tests.Interpreter
 {
     [TestFixture]
     public class ContextTests
     {
-        private System.IO.TextWriter? _originalOut;
-
         [SetUp]
         public void SetUp()
         {
-            _originalOut = System.Console.Out;
-            System.Console.SetOut(new System.IO.StringWriter());
+            _originalOut = Console.Out;
+            Console.SetOut(new StringWriter());
         }
 
         [TearDown]
         public void TearDown()
         {
-            System.Console.SetOut(_originalOut!);
+            Console.SetOut(_originalOut!);
         }
+
+        private TextWriter? _originalOut;
 
         [Test]
         public void Register_And_Retrieve_ReturnsSameValue()
         {
             var ctx = new Context(null);
-            ctx.Register("x", new RuntimeInt(42));
+            ctx.Register("x", new Context(null, new RuntimeInt(42)));
 
             var result = ctx.Retrieve("x");
 
@@ -37,9 +42,8 @@ namespace Spelllang.Tests.Interpreter
         {
             var ctx = new Context(null);
 
-            var result = ctx.Retrieve("nonexistent");
-
-            Assert.That(result, Is.Null);
+            InterpreterTestUtils.AssertRuntimeError(ctx.Retrieve("nonexistent"),
+                "Tried retrieving unknown variable nonexistent (nonexistent)");
         }
 
         [Test]
@@ -88,7 +92,8 @@ namespace Spelllang.Tests.Interpreter
             ctx.Register("x", new RuntimeInt(1));
             ctx.Evict("x");
 
-            Assert.That(ctx.Retrieve("x"), Is.Null);
+            InterpreterTestUtils.AssertRuntimeError(ctx.Retrieve("x"),
+                "Tried retrieving unknown variable x (x)");
         }
 
         [Test]
@@ -126,8 +131,10 @@ namespace Spelllang.Tests.Interpreter
             var child2 = root.Enclose();
             child2.Register("b", new RuntimeInt(2));
 
-            Assert.That(child1.Retrieve("b"), Is.Null);
-            Assert.That(child2.Retrieve("a"), Is.Null);
+            InterpreterTestUtils.AssertRuntimeError(child1.Retrieve("b"),
+                "Tried retrieving unknown variable b (b)");
+            InterpreterTestUtils.AssertRuntimeError(child2.Retrieve("a"),
+                "Tried retrieving unknown variable a (a)");
             InterpreterTestUtils.AssertRuntimeInt(child1.Retrieve("x"), 0);
             InterpreterTestUtils.AssertRuntimeInt(child2.Retrieve("x"), 0);
         }
@@ -135,15 +142,15 @@ namespace Spelllang.Tests.Interpreter
         [Test]
         public void Context_RegistersBuiltinsOnConstruction()
         {
-            var builtin = new TestBuiltins.PrintCapturingBuiltin();
-            var builtins = new System.Collections.Generic.List<(string name, Spelllang.Builtins.IRuntimeBuiltin value)>
+            var builtin = new PrintCapturingBuiltin();
+            var builtins = new List<(string name, IRuntimeBuiltin value)>
             {
                 ("PRINT", builtin)
             };
 
             var ctx = new Context(null, builtins);
 
-            Assert.That(ctx.Retrieve("PRINT"), Is.InstanceOf<TestBuiltins.PrintCapturingBuiltin>());
+            Assert.That(ctx.Retrieve("PRINT"), Is.InstanceOf<PrintCapturingBuiltin>());
         }
 
         [Test]
@@ -151,7 +158,8 @@ namespace Spelllang.Tests.Interpreter
         {
             var ctx = new Context(null);
 
-            Assert.That(ctx.Retrieve("anything"), Is.Null);
+            InterpreterTestUtils.AssertRuntimeError(ctx.Retrieve("anything"),
+                "Tried retrieving unknown variable anything (anything)");
         }
     }
 }
